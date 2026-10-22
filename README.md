@@ -73,6 +73,20 @@ qsf phase2 run      # full configured universe × strategies
 
 Outputs land in `reports/phase2/<run_id>/` (dual leaderboards). Dashboard sidebar → **Phase 2**.
 
+### Phase 3 simulated paper trading (NOT live)
+
+```bash
+# Freeze shortlist into SQLite (immutable config snapshot)
+qsf phase3 register
+
+# Process new sessions on/after forward_start_date (idempotent)
+qsf phase3 run
+```
+
+Ledger: `data/phase3/paper_trading.sqlite` · Exports: `reports/phase3/` · Dashboard sidebar → **Phase 3** (labeled **SIMULATED**).
+
+Cursor VMs are not continuous hosts — see `docs/phase3-scheduler.md` before claiming forward testing is active. No brokerage credentials; data via public yfinance.
+
 Open [http://127.0.0.1:8507](http://127.0.0.1:8507) after the dashboard starts — **Discovery Queue** tab shows candidates.
 
 Unit tests (no network):

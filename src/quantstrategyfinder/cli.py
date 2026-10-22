@@ -321,6 +321,49 @@ def phase2_run(config_path: str, no_resume: bool) -> None:
         click.echo("NO STRATEGY MET STATISTICALLY VALIDATED CRITERIA")
 
 
+@main.group("phase3")
+def phase3_group() -> None:
+    """Phase 3 simulated paper trading / forward validation (NOT live brokerage)."""
+
+
+@phase3_group.command("register")
+@click.option(
+    "--config",
+    "config_path",
+    default="configs/phase3-forward-trading-config.yaml",
+    show_default=True,
+)
+def phase3_register(config_path: str) -> None:
+    """Freeze shortlist + immutable config snapshot into SQLite."""
+    from quantstrategyfinder.phase3.paper_engine import register_config
+
+    out = register_config(config_path)
+    click.echo(json.dumps(out, indent=2))
+    click.echo("SIMULATED registration complete — not live trading.")
+
+
+@phase3_group.command("run")
+@click.option(
+    "--config",
+    "config_path",
+    default="configs/phase3-forward-trading-config.yaml",
+    show_default=True,
+)
+def phase3_run(config_path: str) -> None:
+    """Process new sessions (idempotent paper job)."""
+    from quantstrategyfinder.phase3.paper_engine import run_paper_job
+
+    detail = run_paper_job(config_path)
+    click.echo(json.dumps({
+        "job_id": detail.get("job_id"),
+        "performance_summary": detail.get("performance_summary"),
+        "exports": detail.get("exports"),
+        "warnings": detail.get("warnings"),
+        "scheduler_note": detail.get("scheduler_note"),
+    }, indent=2, default=str))
+    click.echo("SIMULATED paper job finished — not live trading.")
+
+
 @main.command("test")
 @click.option("--e2e", is_flag=True, help="Include real-data end-to-end tests")
 def test_cmd(e2e: bool) -> None:

@@ -1,0 +1,2 @@
+id,candidate_id,order_key,signal_date,exec_date,side,target_weight,status,reason
+1,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-10-22|rebalance,2026-10-20,2026-10-22,buy,1.0,filled,

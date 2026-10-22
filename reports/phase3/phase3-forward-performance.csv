@@ -1,0 +1,6 @@
+candidate_id,strategy_id,symbol,benchmark_symbol,forward_start_date,starting_equity,n_equity_days,n_fills,label,validation_status,validation_notes,ending_equity,total_return,max_drawdown,n_observations,bh_fdr_pass
+atr_breakout_ETH-USD,atr_breakout,ETH-USD,ETH-USD,2026-10-22,200.0,1,1,SIMULATED — NOT LIVE TRADING,INSUFFICIENT_EVIDENCE,"['Insufficient forward sample (days=1/21, fills=1/5). Do not treat as validated.']",,,,0.0,False
+bollinger_reversion_AMZN,bollinger_reversion,AMZN,AMZN,2026-10-22,200.0,0,0,SIMULATED — NOT LIVE TRADING,INSUFFICIENT_EVIDENCE,"['Insufficient forward sample (days=0/21, fills=0/5). Do not treat as validated.']",,,,,False
+dual_sma_SHY,dual_sma,SHY,SHY,2026-10-22,200.0,0,0,SIMULATED — NOT LIVE TRADING,INSUFFICIENT_EVIDENCE,"['Insufficient forward sample (days=0/21, fills=0/5). Do not treat as validated.']",,,,,False
+tsmom_NVDA,tsmom,NVDA,NVDA,2026-10-22,200.0,0,0,SIMULATED — NOT LIVE TRADING,INSUFFICIENT_EVIDENCE,"['Insufficient forward sample (days=0/21, fills=0/5). Do not treat as validated.']",,,,,False
+zscore_reversion_META,zscore_reversion,META,META,2026-10-22,200.0,0,0,SIMULATED — NOT LIVE TRADING,INSUFFICIENT_EVIDENCE,"['Insufficient forward sample (days=0/21, fills=0/5). Do not treat as validated.']",,,,,False

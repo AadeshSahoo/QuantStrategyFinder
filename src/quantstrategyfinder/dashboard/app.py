@@ -34,6 +34,89 @@ def list_phase2_runs(phase2_dir: Path = PHASE2_DIR) -> list[str]:
     return runs
 
 
+def render_phase3() -> None:
+    """Phase 3 SIMULATED paper trading dashboard."""
+    st.title("QuantStrategyFinder — Phase 3")
+    st.error("SIMULATED PAPER TRADING — NOT LIVE BROKERAGE / NOT REAL MONEY")
+    st.caption(
+        "Forward testing uses only sessions on/after the registered forward_start_date. "
+        "Phase 1/2 holdouts are not reused as fresh evidence."
+    )
+    db = Path("data/phase3/paper_trading.sqlite")
+    exports = Path("reports/phase3")
+    if not db.exists():
+        st.warning("No Phase 3 DB yet. Run `qsf phase3 register` then `qsf phase3 run`.")
+        return
+    import sqlite3
+
+    conn = sqlite3.connect(db)
+    conn.row_factory = sqlite3.Row
+    reg = conn.execute("SELECT * FROM registration WHERE id=1").fetchone()
+    cands = [dict(r) for r in conn.execute("SELECT * FROM candidates").fetchall()]
+    accts = [dict(r) for r in conn.execute("SELECT * FROM accounts").fetchall()]
+    fills = pd.read_sql_query("SELECT * FROM fills ORDER BY exec_date DESC LIMIT 200", conn)
+    equity = pd.read_sql_query("SELECT * FROM equity_snapshots ORDER BY asof_date", conn)
+    jobs = pd.read_sql_query("SELECT * FROM job_runs ORDER BY id DESC LIMIT 10", conn)
+    conn.close()
+
+    if reg:
+        st.sidebar.markdown(f"**Forward start:** {reg['forward_start_date']}")
+        st.sidebar.markdown(f"**Config hash:** `{reg['config_hash'][:12]}…`")
+        st.sidebar.markdown(f"**Code:** `{reg['code_version']}`")
+        st.sidebar.markdown(f"**n candidates:** {reg['n_candidates']}")
+
+    tab_ov, tab_pos, tab_tr, tab_eq, tab_val = st.tabs(
+        ["Overview", "Positions", "Trades / Signals", "Equity", "Validation"]
+    )
+    with tab_ov:
+        st.subheader("Registered shortlist (frozen)")
+        st.dataframe(pd.DataFrame(cands), use_container_width=True)
+        st.subheader("Recent job runs")
+        st.dataframe(jobs, use_container_width=True)
+        st.info(
+            "Scheduler: Cursor VM is not continuous. "
+            "See docs/phase3-scheduler.md for persistent hosting."
+        )
+        if (exports / "phase3-validation-report.md").exists():
+            with st.expander("Validation report"):
+                st.markdown((exports / "phase3-validation-report.md").read_text(encoding="utf-8"))
+
+    with tab_pos:
+        st.subheader("Open simulated accounts")
+        st.dataframe(pd.DataFrame(accts), use_container_width=True)
+
+    with tab_tr:
+        st.subheader("Completed fills (SIMULATED)")
+        st.dataframe(fills, use_container_width=True)
+        if (exports / "phase3-paper-trades.csv").exists():
+            st.download_button(
+                "Download paper trades CSV",
+                data=(exports / "phase3-paper-trades.csv").read_bytes(),
+                file_name="phase3-paper-trades.csv",
+            )
+
+    with tab_eq:
+        st.subheader("Simulated equity curves")
+        if equity.empty:
+            st.warning("No equity snapshots yet — often means no bars after forward_start.")
+        else:
+            piv = equity.pivot_table(
+                index="asof_date", columns="candidate_id", values="equity", aggfunc="last"
+            )
+            st.line_chart(piv)
+            st.caption("Benchmark comparisons are in phase3-forward-performance.csv")
+
+    with tab_val:
+        perf = exports / "phase3-forward-performance.csv"
+        if perf.exists():
+            pdf = pd.read_csv(perf)
+            st.dataframe(pdf, use_container_width=True)
+            if "validation_status" in pdf.columns:
+                st.write(pdf["validation_status"].value_counts())
+        else:
+            st.warning("Run `qsf phase3 run` to export performance.")
+
+
 def render_phase2(phase2_dir: Path = PHASE2_DIR) -> None:
     """Phase 2 pages: Overview, Leaderboard, Details, $200 Simulator, Research Audit."""
     st.title("QuantStrategyFinder — Phase 2")
@@ -244,9 +327,12 @@ def equity_stem(row: dict) -> str:
 
 def main() -> None:
     st.set_page_config(page_title="QuantStrategyFinder", layout="wide")
-    mode = st.sidebar.radio("Mode", ["Phase 1", "Phase 2"], index=1)
+    mode = st.sidebar.radio("Mode", ["Phase 1", "Phase 2", "Phase 3"], index=2)
     if mode == "Phase 2":
         render_phase2()
+        return
+    if mode == "Phase 3":
+        render_phase3()
         return
 
     st.title("QuantStrategyFinder")
