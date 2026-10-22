@@ -271,6 +271,22 @@ def evaluate_discovered_cmd(
         )
 
 
+@main.command("audit-p1")
+@click.option("--run-id", default="20261022T011911Z_9bbd8eb2", show_default=True)
+@click.option("--reports-dir", default="reports", show_default=True)
+def audit_p1_cmd(run_id: str, reports_dir: str) -> None:
+    """Post-hoc audit of a frozen P1 eval run (no strategy/param changes)."""
+    from quantstrategyfinder.reporting.p1_audit import write_p1_audit_outputs
+
+    out = write_p1_audit_outputs(run_id=run_id, reports_dir=reports_dir)
+    click.echo(json.dumps({k: out[k] for k in (
+        "run_id", "n_rows", "n_pass", "n_pass_justified", "n_credible_positive_oos",
+        "message", "csv_path", "docs_csv", "docs_md",
+    ) if k in out}, indent=2))
+    if out.get("message"):
+        click.echo(out["message"])
+
+
 @main.command("test")
 @click.option("--e2e", is_flag=True, help="Include real-data end-to-end tests")
 def test_cmd(e2e: bool) -> None:

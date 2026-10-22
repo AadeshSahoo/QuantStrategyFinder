@@ -68,11 +68,12 @@ def main() -> None:
     runs = list_run_ids(REPORTS_DIR)
     discovery_rows = load_discovery_rows()
 
-    tab_overview, tab_discover, tab_board, tab_detail, tab_data, tab_feas = st.tabs(
+    tab_overview, tab_discover, tab_board, tab_audit, tab_detail, tab_data, tab_feas = st.tabs(
         [
             "Overview",
             "Discovery Queue",
             "Leaderboard",
+            "P1 Audit",
             "Strategy Detail",
             "Data Provenance",
             "$200 Feasibility",
@@ -205,6 +206,102 @@ def main() -> None:
             eligible = summary.get("eligible_ranked") or []
             if not eligible:
                 st.warning(summary.get("message") or "NO STRATEGY PASSED VALIDATION")
+
+    with tab_audit:
+        st.subheader("P1 comprehensive audit")
+        st.caption(
+            "Frozen-artifact audit (no re-optimization). "
+            "PASS ≠ proven profitability. Monthly compounded equivalent is derived from CAGR, "
+            "not an observed monthly return."
+        )
+        audit_csv = None
+        if run_id:
+            cand = artifact_dir / "p1_audit_report.csv"
+            if cand.exists():
+                audit_csv = cand
+        if audit_csv is None:
+            root_csv = REPORTS_DIR / "p1_audit_report.csv"
+            if root_csv.exists():
+                audit_csv = root_csv
+        if audit_csv is None or not audit_csv.exists():
+            st.warning(
+                "No audit CSV found. Run `qsf audit-p1 --run-id <RUN>` to generate "
+                "`reports/<run>/p1_audit_report.csv`."
+            )
+        else:
+            adf = pd.read_csv(audit_csv)
+            meta_path = audit_csv.parent / "p1_audit_meta.json"
+            if meta_path.exists():
+                meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                if meta.get("message"):
+                    st.error(meta["message"])
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("Rows", meta.get("n_rows"))
+                c2.metric("PASS", meta.get("n_pass"))
+                c3.metric("PASS justified", meta.get("n_pass_justified"))
+                c4.metric("Credible +OOS vs BAH", meta.get("n_credible_positive_oos"))
+            st.write("Comparison table (all strategy/symbol pairs)")
+            show_cols = [
+                c
+                for c in [
+                    "audit_rank",
+                    "strategy_id",
+                    "symbol",
+                    "github_url",
+                    "fidelity",
+                    "validation_status",
+                    "oos_cagr",
+                    "oos_monthly_compounded_equivalent",
+                    "oos_actual_mean_monthly_return",
+                    "oos_actual_median_monthly_return",
+                    "oos_max_drawdown",
+                    "oos_sharpe",
+                    "oos_sortino",
+                    "oos_profit_factor",
+                    "oos_win_rate",
+                    "oos_n_trades",
+                    "oos_activity_count",
+                    "estimated_oos_trading_costs_usd",
+                    "benchmark_cagr",
+                    "benchmark_max_dd",
+                    "excess_oos_cagr_vs_bah",
+                    "cost_stress_2x_val_sharpe",
+                    "cost_stress_3x_val_sharpe",
+                    "bootstrap_monthly_mean_ci_low",
+                    "bootstrap_monthly_mean_ci_high",
+                    "feasibility_200",
+                    "credible_positive_oos",
+                    "credible_reason",
+                    "insufficient_sample_flags",
+                ]
+                if c in adf.columns
+            ]
+            st.dataframe(adf[show_cols], use_container_width=True, height=480)
+            st.download_button(
+                "Download audit CSV",
+                data=audit_csv.read_bytes(),
+                file_name="p1_audit_report.csv",
+                mime="text/csv",
+            )
+            with st.expander("Trading rules & bias notes (per row sample)"):
+                st.dataframe(
+                    adf[
+                        [
+                            c
+                            for c in [
+                                "strategy_id",
+                                "symbol",
+                                "trading_rules",
+                                "rule_match_notes",
+                                "cost_assumptions",
+                                "bias_findings",
+                                "pass_disclaimer",
+                            ]
+                            if c in adf.columns
+                        ]
+                    ],
+                    use_container_width=True,
+                )
 
     with tab_detail:
         st.subheader("Strategy detail")
