@@ -4,7 +4,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
-REPO="${PHASE3_GITHUB_REPO:-aadesh-sahoo/QuantStrategyFinder}"
+REPO="${PHASE3_GITHUB_REPO:-AadeshSahoo/QuantStrategyFinder}"
 EXPECTED=774936e63dedec57f05aac1831aee23f3e3ddcdc634ef9ff4c9b1d6b58f3fd8f
 
 actual="$(python3 - <<'PY'
