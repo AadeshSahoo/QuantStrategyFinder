@@ -49,7 +49,7 @@
     "forward_start_date": "2026-10-22",
     "message": "No candidate is labeled STATISTICALLY VALIDATED on this forward sample. "
   },
-  "job_id": 4,
+  "job_id": 5,
   "db_path": "data/phase3/paper_trading.sqlite",
-  "scheduler_note": "One-shot job completed in this environment. Continuous forward testing requires a persistent host running scripts/phase3_paper_job.py on a schedule (see docs/phase3-scheduler.md)."
+  "scheduler_note": "Paper job completed. Durable ledger lives on git branch `phase3-ledger`. Official ACTIVE forward testing requires the CI schedule (.github/workflows/phase3-paper.yml or .depot/workflows/phase3-paper.yml) to run on a connected provider \u2014 see docs/phase3-scheduler.md and /cursor/stores/self/docs/phase3-activation.md."
 }

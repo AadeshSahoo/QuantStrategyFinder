@@ -7,7 +7,7 @@
 - Registered at: 2026-10-22T02:59:17.564177+00:00
 - Forward start: **2026-10-22** (after Phase 2 OOS consumption)
 - Candidates registered: **5**
-- Latest job: id=4 status=`completed` finished=2026-10-22T03:31:30.226996+00:00
+- Latest job: id=5 status=`completed` finished=2026-10-22T03:33:02.578012+00:00
 
 ## Integrity
 
@@ -44,7 +44,7 @@
 
 ## Scheduler / hosting
 
-One-shot job completed in this environment. Continuous forward testing requires a persistent host running scripts/phase3_paper_job.py on a schedule (see docs/phase3-scheduler.md).
+Paper job completed. Durable ledger lives on git branch `phase3-ledger`. Official ACTIVE forward testing requires the CI schedule (.github/workflows/phase3-paper.yml or .depot/workflows/phase3-paper.yml) to run on a connected provider — see docs/phase3-scheduler.md and /cursor/stores/self/docs/phase3-activation.md.
 
 ## Candidates & limitations
 
