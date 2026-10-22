@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.env
+.python-version
+
+# Tooling
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.idea/
+.vscode/
+
+# App artifacts (generated)
+data/**
+reports/**
+!data/.gitkeep
+!reports/.gitkeep
+*.db
+*.sqlite
+*.parquet
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Virtualenv
+.venv/
