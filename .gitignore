@@ -27,6 +27,8 @@ data/**
 !data/discovery/.gitkeep
 reports/**
 !reports/.gitkeep
+!reports/phase2/
+!reports/phase2/.gitkeep
 *.db
 *.sqlite
 *.parquet

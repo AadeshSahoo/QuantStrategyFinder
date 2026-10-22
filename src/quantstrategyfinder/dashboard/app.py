@@ -20,7 +20,192 @@ def _parse_reports_dir() -> Path:
 
 
 REPORTS_DIR = _parse_reports_dir()
+PHASE2_DIR = Path("reports/phase2")
 DISCOVERY_DB = Path("data/discovery/candidates.sqlite")
+
+
+def list_phase2_runs(phase2_dir: Path = PHASE2_DIR) -> list[str]:
+    if not phase2_dir.exists():
+        return []
+    runs = []
+    for p in sorted(phase2_dir.iterdir(), reverse=True):
+        if p.is_dir() and (p / "summary.json").exists() and p.name.startswith("phase2_"):
+            runs.append(p.name)
+    return runs
+
+
+def render_phase2(phase2_dir: Path = PHASE2_DIR) -> None:
+    """Phase 2 pages: Overview, Leaderboard, Details, $200 Simulator, Research Audit."""
+    st.title("QuantStrategyFinder — Phase 2")
+    st.caption(
+        "Multi-market research. Dual boards never merge. "
+        "UNVALIDATED — RESEARCH ONLY is not a live recommendation. No fabricated metrics."
+    )
+    runs = list_phase2_runs(phase2_dir)
+    if not runs:
+        st.error(
+            f"No Phase 2 runs under `{phase2_dir.resolve()}`. "
+            "Run `qsf phase2 smoke` then `qsf phase2 run`."
+        )
+        return
+    run_id = st.sidebar.selectbox("Phase 2 run", runs)
+    art = phase2_dir / run_id
+    summary = json.loads((art / "summary.json").read_text(encoding="utf-8"))
+    results_path = art / "phase2_strategy_results.csv"
+    if not results_path.exists():
+        st.error("Missing phase2_strategy_results.csv")
+        return
+    df = pd.read_csv(results_path)
+
+    tab_ov, tab_lb, tab_det, tab_sim, tab_audit = st.tabs(
+        ["Overview", "Leaderboard", "Strategy Details", "$200 Simulator", "Research Audit"]
+    )
+
+    with tab_ov:
+        c1, c2, c3, c4, c5 = st.columns(5)
+        c1.metric("Strategies", summary.get("n_strategies"))
+        c2.metric("Symbols loaded", summary.get("n_symbols_loaded"))
+        c3.metric("Combinations OK", summary.get("n_combinations_ok"))
+        c4.metric("Validated", summary.get("n_validated"))
+        c5.metric("Experimental", summary.get("n_experimental"))
+        if summary.get("n_validated", 0) == 0:
+            st.warning("No strategy met statistically validated criteria.")
+        else:
+            val = df[df["board"] == "validated"]
+            if not val.empty and "oos_sharpe" in val.columns:
+                best = val.sort_values("oos_sharpe", ascending=False).iloc[0]
+                st.success(
+                    f"Best validated Sharpe: `{best['strategy_id']}` @ `{best['symbol']}` "
+                    f"= {best['oos_sharpe']:.3f}"
+                )
+        st.json(
+            {
+                k: summary.get(k)
+                for k in (
+                    "run_id",
+                    "created_at",
+                    "git_commit",
+                    "holdout_note",
+                    "gates",
+                )
+            }
+        )
+
+    with tab_lb:
+        st.subheader("Dual leaderboards")
+        board = st.radio(
+            "Board",
+            ["Statistically Validated", "Experimental (UNVALIDATED — RESEARCH ONLY)"],
+            horizontal=True,
+        )
+        view = df[df["board"] == ("validated" if board.startswith("Stat") else "experimental")].copy()
+        ac = st.multiselect(
+            "Asset class",
+            sorted(view["asset_class"].dropna().unique()) if "asset_class" in view.columns else [],
+        )
+        if ac:
+            view = view[view["asset_class"].isin(ac)]
+        max_dd = st.slider("Max |drawdown| filter", 0.05, 1.0, 1.0, 0.05)
+        if "oos_max_drawdown" in view.columns:
+            view = view[view["oos_max_drawdown"].abs().fillna(1) <= max_dd]
+        min_cagr = st.number_input("Min OOS CAGR", value=-1.0, step=0.01)
+        if "oos_cagr" in view.columns:
+            view = view[view["oos_cagr"].fillna(-9) >= min_cagr]
+        min_sh = st.number_input("Min OOS Sharpe", value=-5.0, step=0.1)
+        if "oos_sharpe" in view.columns:
+            view = view[view["oos_sharpe"].fillna(-9) >= min_sh]
+        only_200 = st.checkbox("$200 feasible only", value=False)
+        if only_200 and "feasible_200" in view.columns:
+            view = view[view["feasible_200"] == True]  # noqa: E712
+        if board.startswith("Stat") and view.empty:
+            st.info("Validated board is empty — gates were not loosened.")
+        st.dataframe(view, use_container_width=True, height=420)
+        if board.startswith("Exp"):
+            st.caption("Experimental rows are UNVALIDATED — RESEARCH ONLY.")
+
+    with tab_det:
+        ok = df[df.get("status", "ok") == "ok"] if "status" in df.columns else df
+        if ok.empty:
+            st.info("No completed rows.")
+        else:
+            labels = [f"{r.strategy_id} @ {r.symbol} [{r.board}]" for r in ok.itertuples()]
+            choice = st.selectbox("Combination", labels)
+            r = ok.iloc[labels.index(choice)]
+            st.write(
+                f"**{r.get('label', '')}** · fidelity `{r.get('fidelity')}` · "
+                f"[source]({r.get('source_url')})"
+            )
+            st.json(
+                {
+                    "params": r.get("strategy_params"),
+                    "failure_reasons": r.get("failure_reasons"),
+                    "oos_cagr": r.get("oos_cagr"),
+                    "benchmark_cagr": r.get("benchmark_cagr"),
+                    "oos_sharpe": r.get("oos_sharpe"),
+                    "oos_max_drawdown": r.get("oos_max_drawdown"),
+                    "bootstrap_ci": [
+                        r.get("bootstrap_monthly_ci_low"),
+                        r.get("bootstrap_monthly_ci_high"),
+                    ],
+                }
+            )
+            stem = r.get("stem") or f"{r['strategy_id']}_{str(r['symbol']).replace('=', '_')}"
+            eq_path = art / f"equity_{stem}.csv"
+            if eq_path.exists():
+                eq = pd.read_csv(eq_path, parse_dates=["Date"], index_col="Date")
+                st.line_chart(eq["equity"], height=260)
+                dd = eq["equity"] / eq["equity"].cummax() - 1.0
+                st.line_chart(dd.rename("drawdown"), height=180)
+            trades = art / f"trades_{stem}.csv"
+            if trades.exists():
+                st.write("Trade ledger")
+                st.dataframe(pd.read_csv(trades), use_container_width=True)
+
+    with tab_sim:
+        st.subheader("$200 account simulator (historical path)")
+        feas = df[df.get("feasible_200") == True] if "feasible_200" in df.columns else df  # noqa: E712
+        st.metric("Feasible combinations", len(feas))
+        show = df[
+            [
+                c
+                for c in [
+                    "strategy_id",
+                    "symbol",
+                    "asset_class",
+                    "feasible_200",
+                    "sim_200_end_equity",
+                    "sim_200_worst_dd_usd",
+                    "oos_max_drawdown",
+                    "board",
+                    "label",
+                    "feasibility_reasons",
+                ]
+                if c in df.columns
+            ]
+        ]
+        st.dataframe(show, use_container_width=True, height=400)
+        st.caption(
+            "Dollar paths are historical simulations under research cost assumptions — "
+            "not guaranteed income."
+        )
+
+    with tab_audit:
+        st.subheader("Research audit")
+        for name in (
+            "phase2_statistical_audit.csv",
+            "phase2_data_provenance.csv",
+            "phase2_research_summary.md",
+        ):
+            p = art / name
+            if not p.exists():
+                st.warning(f"Missing {name}")
+                continue
+            st.markdown(f"**{name}**")
+            if name.endswith(".md"):
+                st.markdown(p.read_text(encoding="utf-8"))
+            else:
+                st.dataframe(pd.read_csv(p), use_container_width=True, height=320)
+        st.info(summary.get("holdout_note", ""))
 
 
 def list_run_ids(reports_dir: Path) -> list[str]:
@@ -59,6 +244,11 @@ def equity_stem(row: dict) -> str:
 
 def main() -> None:
     st.set_page_config(page_title="QuantStrategyFinder", layout="wide")
+    mode = st.sidebar.radio("Mode", ["Phase 1", "Phase 2"], index=1)
+    if mode == "Phase 2":
+        render_phase2()
+        return
+
     st.title("QuantStrategyFinder")
     st.caption(
         "Research-only. Metrics come from recorded run artifacts — never hardcoded demo numbers. "

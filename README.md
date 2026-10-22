@@ -64,6 +64,15 @@ qsf review approve-mapped
 qsf evaluate-discovered
 ```
 
+### Phase 2 multi-market research
+
+```bash
+qsf phase2 smoke    # small sample first
+qsf phase2 run      # full configured universe × strategies
+```
+
+Outputs land in `reports/phase2/<run_id>/` (dual leaderboards). Dashboard sidebar → **Phase 2**.
+
 Open [http://127.0.0.1:8507](http://127.0.0.1:8507) after the dashboard starts — **Discovery Queue** tab shows candidates.
 
 Unit tests (no network):

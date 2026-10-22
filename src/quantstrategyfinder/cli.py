@@ -287,6 +287,40 @@ def audit_p1_cmd(run_id: str, reports_dir: str) -> None:
         click.echo(out["message"])
 
 
+@main.group("phase2")
+def phase2_group() -> None:
+    """Phase 2 multi-market research pipeline (isolated from Phase 1 artifacts)."""
+
+
+@phase2_group.command("smoke")
+@click.option("--config", "config_path", default="configs/phase2.yaml", show_default=True)
+def phase2_smoke(config_path: str) -> None:
+    """Small-sample engine validation before large sweeps."""
+    from quantstrategyfinder.phase2.pipeline import run_phase2_smoke
+
+    summary = run_phase2_smoke(config_path=config_path)
+    click.echo(json.dumps({k: summary.get(k) for k in (
+        "run_id", "n_strategies", "n_symbols_loaded", "n_combinations_ok",
+        "n_validated", "n_experimental", "artifact_dir",
+    )}, indent=2))
+
+
+@phase2_group.command("run")
+@click.option("--config", "config_path", default="configs/phase2.yaml", show_default=True)
+@click.option("--no-resume", is_flag=True, help="Ignore checkpoint and recompute")
+def phase2_run(config_path: str, no_resume: bool) -> None:
+    """Full Phase 2 research run across configured universe × strategies."""
+    from quantstrategyfinder.phase2.pipeline import run_phase2_pipeline
+
+    summary = run_phase2_pipeline(config_path=config_path, resume=not no_resume, tag="full")
+    click.echo(json.dumps({k: summary.get(k) for k in (
+        "run_id", "n_strategies", "n_symbols_loaded", "n_combinations_ok",
+        "n_validated", "n_experimental", "artifact_dir", "output_files",
+    )}, indent=2, default=str))
+    if summary.get("n_validated", 0) == 0:
+        click.echo("NO STRATEGY MET STATISTICALLY VALIDATED CRITERIA")
+
+
 @main.command("test")
 @click.option("--e2e", is_flag=True, help="Include real-data end-to-end tests")
 def test_cmd(e2e: bool) -> None:

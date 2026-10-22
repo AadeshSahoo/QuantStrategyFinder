@@ -42,12 +42,17 @@ def validate_bars(df: pd.DataFrame, *, symbol: str, min_bars: int = 60) -> list[
     )
     n_bad = int(bad_ohlc.sum())
     if n_bad:
-        if n_bad > max(3, int(0.01 * len(df))):
-            raise DataValidationError(f"{symbol}: {n_bad} bars with inconsistent OHLC")
+        # Allow dropping up to 5% of bars (FX/Yahoo quirks); never invent replacements.
+        max_drop = max(3, int(0.05 * len(df)))
+        if n_bad > max_drop:
+            raise DataValidationError(
+                f"{symbol}: {n_bad} bars with inconsistent OHLC (limit {max_drop})"
+            )
         bad_dates = [str(ts.date()) for ts in df.index[bad_ohlc]]
+        preview = bad_dates[:8] + (["…"] if len(bad_dates) > 8 else [])
         warnings.append(
             f"{symbol}: dropped {n_bad} inconsistent OHLC bar(s) "
-            f"(often an in-progress session): {bad_dates}"
+            f"(often in-progress/bad Yahoo prints): {preview}"
         )
         df.drop(df.index[bad_ohlc], inplace=True)
 
