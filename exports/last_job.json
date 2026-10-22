@@ -9,7 +9,7 @@
       "fills": 0,
       "cost_notes": "crypto: commission_pct=0.001, spread_bps=5.0, slippage_bps=10.0, min_notional=5.0",
       "data_end": "2026-10-22",
-      "data_hash": "47f3b96386070219fecff0c76d668da12c376286dc9f74670cfebd00032e6a7f"
+      "data_hash": "69fe63295e4ce745d478eb2066de5f62da02ca5d6406feac7f8cdb93698c0974"
     },
     {
       "candidate_id": "bollinger_reversion_AMZN",
@@ -51,7 +51,7 @@
     "forward_start_date": "2026-10-22",
     "message": "No candidate is labeled STATISTICALLY VALIDATED on this forward sample. "
   },
-  "job_id": 8,
+  "job_id": 9,
   "db_path": "data/phase3/paper_trading.sqlite",
   "scheduler_note": "Paper job completed. Durable ledger lives on git branch `phase3-ledger`. Official ACTIVE forward testing requires the CI schedule (.github/workflows/phase3-paper.yml or .depot/workflows/phase3-paper.yml) to run on a connected provider \u2014 see docs/phase3-scheduler.md and /cursor/stores/self/docs/phase3-activation.md."
 }
