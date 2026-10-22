@@ -7,7 +7,7 @@
 - Registered at: 2026-10-22T02:59:17.564177+00:00
 - Forward start: **2026-10-22** (after Phase 2 OOS consumption)
 - Candidates registered: **5**
-- Latest job: id=3 status=`completed` finished=2026-10-22T03:00:33.543174+00:00
+- Latest job: id=4 status=`completed` finished=2026-10-22T03:31:30.226996+00:00
 
 ## Integrity
 
@@ -36,6 +36,7 @@
 
 ## Warnings / data notes
 
+- atr_breakout_ETH-USD: no bars on/after 2026-10-22 yet (latest cached end=2026-10-20).
 - bollinger_reversion_AMZN: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21).
 - dual_sma_SHY: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21).
 - tsmom_NVDA: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21).

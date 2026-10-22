@@ -4,12 +4,9 @@
   "candidates": [
     {
       "candidate_id": "atr_breakout_ETH-USD",
-      "symbol": "ETH-USD",
-      "new_sessions_processed": 1,
+      "new_sessions": 0,
       "fills": 0,
-      "cost_notes": "crypto: commission_pct=0.001, spread_bps=5.0, slippage_bps=10.0, min_notional=5.0",
-      "data_end": "2026-10-22",
-      "data_hash": "c1fcfd377dd9ecf3f9fd76d05bd17f9783341b03ed90dc9fa15f45589981fb4c"
+      "status": "no_new_data"
     },
     {
       "candidate_id": "bollinger_reversion_AMZN",
@@ -37,6 +34,7 @@
     }
   ],
   "warnings": [
+    "atr_breakout_ETH-USD: no bars on/after 2026-10-22 yet (latest cached end=2026-10-20).",
     "bollinger_reversion_AMZN: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21).",
     "dual_sma_SHY: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21).",
     "tsmom_NVDA: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21).",
@@ -51,7 +49,7 @@
     "forward_start_date": "2026-10-22",
     "message": "No candidate is labeled STATISTICALLY VALIDATED on this forward sample. "
   },
-  "job_id": 3,
+  "job_id": 4,
   "db_path": "data/phase3/paper_trading.sqlite",
   "scheduler_note": "One-shot job completed in this environment. Continuous forward testing requires a persistent host running scripts/phase3_paper_job.py on a schedule (see docs/phase3-scheduler.md)."
 }

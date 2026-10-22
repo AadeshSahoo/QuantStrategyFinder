@@ -1,0 +1,13 @@
+{
+  "label": "SIMULATED_PAPER_TRADING_NOT_LIVE",
+  "finished_at_utc": "2026-10-22T03:31:31.472079+00:00",
+  "exit_code": 0,
+  "config_hash": "774936e63dedec57f05aac1831aee23f3e3ddcdc634ef9ff4c9b1d6b58f3fd8f",
+  "expected_config_hash": "774936e63dedec57f05aac1831aee23f3e3ddcdc634ef9ff4c9b1d6b58f3fd8f",
+  "config_hash_ok": true,
+  "job_detail": {
+    "parse_error": "Extra data: line 9 column 4 (char 297)"
+  },
+  "ingestion_ok": true,
+  "warnings": null
+}
