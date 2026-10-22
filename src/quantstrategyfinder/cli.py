@@ -133,7 +133,7 @@ def report_cmd(run_id: str, reports_dir: str) -> None:
 @main.command("dashboard")
 @click.option("--reports-dir", default="reports", show_default=True)
 @click.option("--port", default=8507, show_default=True, type=int)
-@click.option("--host", default="127.0.0.1", show_default=True)
+@click.option("--host", default="0.0.0.0", show_default=True)
 def dashboard_cmd(reports_dir: str, port: int, host: str) -> None:
     """Launch Streamlit dashboard on real run artifacts."""
     app = Path(__file__).resolve().parent / "dashboard" / "app.py"
@@ -148,6 +148,10 @@ def dashboard_cmd(reports_dir: str, port: int, host: str) -> None:
         str(port),
         "--server.address",
         host,
+        "--server.headless",
+        "true",
+        "--browser.gatherUsageStats",
+        "false",
         "--",
         "--reports-dir",
         env_reports,
