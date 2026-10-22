@@ -1,45 +1,54 @@
-# Phase 3 scheduler & persistent hosting
+# Phase 3 scheduler & durable hosting
 
-**Cursor cloud VMs are not continuous hosts.** Forward testing is only “officially active”
-when this job runs on a machine you control (VPS, always-on workstation, GitHub Actions
-scheduled workflow with secrets, etc.).
+**Label:** SIMULATED PAPER TRADING — NOT LIVE BROKERAGE
 
-## One-shot job (verified in development)
+This repository is Origin-hosted (`origin.cursor.com`). Native GitHub Actions will not fire
+until the repo is mirrored/connected to GitHub **or** Depot CI is connected for Origin.
+Durable state does **not** live on the ephemeral runner disk.
+
+## Chosen free durable store
+
+| Option | Role | Tradeoff |
+|---|---|---|
+| **Git branch `phase3-ledger` (chosen)** | Authoritative SQLite + CSV/MD exports + run logs | Free forever on any git host; history grows; force-push discouraged |
+| GitHub Actions artifacts only | Ephemeral | Expire (≤90 days); **not** sufficient alone |
+| Turso / libSQL free tier | Hosted SQLite | Needs account + token secrets; overkill for this slice |
+| Depot CI object cache | CI acceleration | Not a substitute for the ledger branch |
+
+**Flow each run:** `restore phase3-ledger` → `qsf phase3 run` (idempotent) → `persist` (commit+push ledger).
+
+## Workflows (schedule + manual)
+
+| Path | Provider |
+|---|---|
+| `.github/workflows/phase3-paper.yml` | GitHub Actions (free for **public** repos) |
+| `.depot/workflows/phase3-paper.yml` | Depot CI on Origin (GHA-compatible; schedules from **default branch**) |
+
+**Cron (UTC):**
+- `45 21 * * 1-5` — weekdays after US cash close
+- `15 12 * * 0,6` — weekend crypto catch-up
+
+**Concurrency:** `group: phase3-paper-trading`, `cancel-in-progress: false` (no overlapping jobs).  
+**Idempotency:** engine `order_key` uniqueness prevents duplicate fills if a run is retried.
+
+## One-shot / local scheduled-run equivalent
 
 ```bash
 source .venv/bin/activate
-qsf phase3 register
-qsf phase3 run
+bash scripts/phase3_ci_job.sh
 ```
 
-SQLite ledger: `data/phase3/paper_trading.sqlite`  
-Exports: `reports/phase3/`
+This is what CI executes: restore → verify frozen config hash → paper job → persist.
 
-## Cron example (Linux persistent host)
+## What was verified here vs what you must enable
 
-```cron
-# Every weekday 21:30 UTC after US cash equity close / crypto continuous
-30 21 * * 1-5 cd /opt/QuantStrategyFinder && . .venv/bin/activate && qsf phase3 run >> /var/log/qsf-phase3.log 2>&1
-```
-
-Or:
-
-```bash
-python scripts/phase3_paper_job.py
-```
-
-## systemd timer sketch
-
-`/etc/systemd/system/qsf-phase3.service` + `.timer` calling the same command daily.
-
-## What was verified here vs what you must host
-
-| Capability | Verified in this agent environment | Needs your persistent host |
+| Capability | Verified in agent environment | Needs you |
 |---|---|---|
-| Config registration + config hash | Yes | — |
-| Idempotent paper job + SQLite persistence | Yes | — |
-| CSV/MD exports | Yes | — |
-| Continuous/scheduled ingestion | **No** (VM not continuous) | Yes |
-| Multi-week forward sample | **No** yet (forward_start=2026-10-22; few/new bars) | Accrues over time on host |
+| Immutable config hash `774936e6…` (5 candidates) | Yes | — |
+| Durable ledger branch `phase3-ledger` restore/persist | Yes (pushed to Origin) | — |
+| Idempotent re-run (no duplicate fills) | Yes | — |
+| Fresh yfinance ingestion in CI-equivalent job | Yes | — |
+| Remote **schedule** actually firing | **No** | Connect GitHub Actions **or** Depot; merge workflow to default branch for cron |
 
-Do **not** claim continuous forward testing is active until the scheduler row above is true.
+Until the remote schedule row is true, forward testing status is **NOT ACTIVE**
+(see `/cursor/stores/self/docs/phase3-activation.md`).

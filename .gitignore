@@ -20,6 +20,9 @@ htmlcov/
 .idea/
 .vscode/
 
+# Local Phase 3 ledger worktree (never commit; remote branch is phase3-ledger)
+.phase3-ledger/
+
 # App artifacts (generated)
 data/**
 !data/.gitkeep

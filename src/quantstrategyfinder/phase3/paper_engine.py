@@ -353,9 +353,11 @@ def run_paper_job(
         detail["job_id"] = job_id
         detail["db_path"] = db_path
         detail["scheduler_note"] = (
-            "One-shot job completed in this environment. Continuous forward testing requires "
-            "a persistent host running scripts/phase3_paper_job.py on a schedule "
-            "(see docs/phase3-scheduler.md)."
+            "Paper job completed. Durable ledger lives on git branch `phase3-ledger`. "
+            "Official ACTIVE forward testing requires the CI schedule "
+            "(.github/workflows/phase3-paper.yml or .depot/workflows/phase3-paper.yml) "
+            "to run on a connected provider — see docs/phase3-scheduler.md and "
+            "/cursor/stores/self/docs/phase3-activation.md."
         )
         store.finish_job(job_id, "completed", detail)
         paths = export_phase3_deliverables(store, cfg, perf, detail)

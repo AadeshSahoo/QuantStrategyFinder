@@ -7,7 +7,14 @@
 - Registered at: 2026-10-22T02:59:17.564177+00:00
 - Forward start: **2026-10-22** (after Phase 2 OOS consumption)
 - Candidates registered: **5**
-- Latest job: id=3 status=`completed` finished=2026-10-22T03:00:33.543174+00:00
+- Latest job: id=5 status=`completed` finished=2026-10-22T03:33:02.578012+00:00
+
+
+## Activation status
+
+**NOT ACTIVE** — durable ledger + CI-equivalent verified; remote schedule not yet connected. See `/cursor/stores/self/docs/phase3-activation.md`.
+
+- Frozen config hash: `774936e63dedec57f05aac1831aee23f3e3ddcdc634ef9ff4c9b1d6b58f3fd8f`
 
 ## Integrity
 
@@ -36,6 +43,7 @@
 
 ## Warnings / data notes
 
+- atr_breakout_ETH-USD: no bars on/after 2026-10-22 yet (latest cached end=2026-10-20).
 - bollinger_reversion_AMZN: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21).
 - dual_sma_SHY: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21).
 - tsmom_NVDA: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21).
@@ -43,7 +51,7 @@
 
 ## Scheduler / hosting
 
-One-shot job completed in this environment. Continuous forward testing requires a persistent host running scripts/phase3_paper_job.py on a schedule (see docs/phase3-scheduler.md).
+Paper job completed. Durable ledger lives on git branch `phase3-ledger`. Official ACTIVE forward testing requires the CI schedule (.github/workflows/phase3-paper.yml or .depot/workflows/phase3-paper.yml) to run on a connected provider — see docs/phase3-scheduler.md and /cursor/stores/self/docs/phase3-activation.md.
 
 ## Candidates & limitations
 

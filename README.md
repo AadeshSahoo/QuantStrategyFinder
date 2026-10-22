@@ -85,7 +85,7 @@ qsf phase3 run
 
 Ledger: `data/phase3/paper_trading.sqlite` · Exports: `reports/phase3/` · Dashboard sidebar → **Phase 3** (labeled **SIMULATED**).
 
-Cursor VMs are not continuous hosts — see `docs/phase3-scheduler.md` before claiming forward testing is active. No brokerage credentials; data via public yfinance.
+Durable ledger: git branch `phase3-ledger`. CI workflows: `.github/workflows/phase3-paper.yml` (GitHub Actions) and `.depot/workflows/phase3-paper.yml` (Origin + Depot). Local equivalent: `bash scripts/phase3_ci_job.sh`. See `docs/phase3-scheduler.md` and activation status before claiming forward testing is ACTIVE. No brokerage credentials; data via public yfinance.
 
 Open [http://127.0.0.1:8507](http://127.0.0.1:8507) after the dashboard starts — **Discovery Queue** tab shows candidates.
 
