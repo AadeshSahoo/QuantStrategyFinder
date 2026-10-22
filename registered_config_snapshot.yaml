@@ -1,0 +1,110 @@
+# Phase 3 — IMMUTABLE forward-trading registration (do not edit to chase results)
+# Selection rule: Phase 3 PRD §2 five candidates from Phase 2 diagnostic;
+# freeze library default parameters; no re-optimization on forward data.
+
+schema_version: 1
+phase: 3
+label: SIMULATED_PAPER_TRADING_NOT_LIVE
+registered_at_utc: "2026-10-22T00:00:00Z"
+code_version_pin: "7448363"
+# Forward window starts AFTER Phase 2 OOS consumption (~ends 2026-10-20/21)
+forward_start_date: "2026-10-22"
+starting_equity_per_strategy: 200.0
+currency: USD
+n_candidates_registered: 5
+multiple_testing:
+  method: benjamini_hochberg
+  q: 0.10
+  n_tests: 5  # registered shortlist size — not the historical 325-search library
+
+data:
+  source: yfinance
+  interval: 1d
+  cache_dir: data/cache
+  lookback_years: 10
+  timezone: UTC
+
+persistence:
+  sqlite_path: data/phase3/paper_trading.sqlite
+  exports_dir: reports/phase3
+
+# Non-zero costs (never assume zero total execution cost)
+costs:
+  equity_etf:
+    commission_per_trade: 0.0
+    commission_pct: 0.0005   # 5 bps commission proxy
+    spread_bps: 2.0
+    slippage_bps: 5.0
+    min_notional: 1.0
+    allow_fractional: true
+  crypto:
+    commission_per_trade: 0.0
+    commission_pct: 0.001    # 10 bps taker-style fee
+    spread_bps: 5.0
+    slippage_bps: 10.0
+    min_notional: 5.0
+    allow_fractional: true
+
+insufficient_evidence:
+  min_trading_days: 21
+  min_completed_trades: 5
+  min_months_for_cagr: 3
+
+candidates:
+  - candidate_id: atr_breakout_ETH-USD
+    strategy_id: atr_breakout
+    symbol: ETH-USD
+    asset_class: crypto
+    benchmark_symbol: ETH-USD
+    params:
+      atr_period: 14
+      k: 2.0
+    phase2_limitations: >
+      Combined top-1 in Phase 2 diagnostic; failed bootstrap CI, activity<10, and BH-FDR
+      on consumed OOS. Forward test is new evidence only after forward_start_date.
+
+  - candidate_id: tsmom_NVDA
+    strategy_id: tsmom
+    symbol: NVDA
+    asset_class: equities
+    benchmark_symbol: NVDA
+    params:
+      lookback: 252
+      threshold: 0.0
+    phase2_limitations: >
+      Axis CAGR leader but excess vs BAH was 0 on consumed OOS; activity 0; DD gate fail.
+      May closely track buy-and-hold — monitor excess carefully.
+
+  - candidate_id: zscore_reversion_META
+    strategy_id: zscore_reversion
+    symbol: META
+    asset_class: equities
+    benchmark_symbol: META
+    params:
+      window: 20
+      entry_z: 1.5
+      exit_z: 0.25
+    phase2_limitations: >
+      Near-miss: passed all Phase 2 gates except BH-FDR (excess bootstrap p≈0.40).
+
+  - candidate_id: bollinger_reversion_AMZN
+    strategy_id: bollinger_reversion
+    symbol: AMZN
+    asset_class: equities
+    benchmark_symbol: AMZN
+    params:
+      window: 20
+      n_std: 2.0
+    phase2_limitations: >
+      Near-miss: passed all Phase 2 gates except BH-FDR (excess bootstrap p≈0.44).
+
+  - candidate_id: dual_sma_SHY
+    strategy_id: dual_sma
+    symbol: SHY
+    asset_class: fixed_income
+    benchmark_symbol: SHY
+    params:
+      fast: 50
+      slow: 200
+    phase2_limitations: >
+      Axis Sharpe leader on low-vol FI; excess vs BAH was 0 on consumed OOS (BAH-like path).

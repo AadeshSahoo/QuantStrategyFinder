@@ -1,0 +1,57 @@
+{
+  "label": "SIMULATED_PAPER_TRADING_NOT_LIVE",
+  "forward_start_date": "2026-10-22",
+  "candidates": [
+    {
+      "candidate_id": "atr_breakout_ETH-USD",
+      "symbol": "ETH-USD",
+      "new_sessions_processed": 1,
+      "fills": 0,
+      "cost_notes": "crypto: commission_pct=0.001, spread_bps=5.0, slippage_bps=10.0, min_notional=5.0",
+      "data_end": "2026-10-22",
+      "data_hash": "c1fcfd377dd9ecf3f9fd76d05bd17f9783341b03ed90dc9fa15f45589981fb4c"
+    },
+    {
+      "candidate_id": "bollinger_reversion_AMZN",
+      "new_sessions": 0,
+      "fills": 0,
+      "status": "no_new_data"
+    },
+    {
+      "candidate_id": "dual_sma_SHY",
+      "new_sessions": 0,
+      "fills": 0,
+      "status": "no_new_data"
+    },
+    {
+      "candidate_id": "tsmom_NVDA",
+      "new_sessions": 0,
+      "fills": 0,
+      "status": "no_new_data"
+    },
+    {
+      "candidate_id": "zscore_reversion_META",
+      "new_sessions": 0,
+      "fills": 0,
+      "status": "no_new_data"
+    }
+  ],
+  "warnings": [
+    "bollinger_reversion_AMZN: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21).",
+    "dual_sma_SHY: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21).",
+    "tsmom_NVDA: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21).",
+    "zscore_reversion_META: no bars on/after 2026-10-22 yet (latest cached end=2026-10-21)."
+  ],
+  "performance_summary": {
+    "n_candidates": 5,
+    "n_insufficient_evidence": 5,
+    "n_forward_running_unvalidated": 0,
+    "n_statistically_validated": 0,
+    "multiple_testing_n": 5,
+    "forward_start_date": "2026-10-22",
+    "message": "No candidate is labeled STATISTICALLY VALIDATED on this forward sample. "
+  },
+  "job_id": 3,
+  "db_path": "data/phase3/paper_trading.sqlite",
+  "scheduler_note": "One-shot job completed in this environment. Continuous forward testing requires a persistent host running scripts/phase3_paper_job.py on a schedule (see docs/phase3-scheduler.md)."
+}
