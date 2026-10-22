@@ -12,6 +12,24 @@ import yaml
 from quantstrategyfinder.phase3.store import PaperStore
 
 
+def _optional_agent_docs_dir() -> Path | None:
+    """Cursor agent store path — present in Cloud Agent VMs, absent on GitHub runners."""
+    docs = Path("/cursor/stores/self/docs")
+    try:
+        docs.mkdir(parents=True, exist_ok=True)
+        return docs
+    except OSError:
+        return None
+
+
+def _mirror_to_docs(docs: Path | None, name: str, src: Path) -> Path | None:
+    if docs is None or not src.exists():
+        return None
+    dest = docs / name
+    dest.write_bytes(src.read_bytes())
+    return dest
+
+
 def export_phase3_deliverables(
     store: PaperStore,
     cfg: dict[str, Any],
@@ -20,38 +38,41 @@ def export_phase3_deliverables(
 ) -> dict[str, Path]:
     exports_dir = Path(cfg["persistence"]["exports_dir"])
     exports_dir.mkdir(parents=True, exist_ok=True)
-    docs = Path("/cursor/stores/self/docs")
-    docs.mkdir(parents=True, exist_ok=True)
+    docs = _optional_agent_docs_dir()
     paths: dict[str, Path] = {}
 
     fills = pd.DataFrame(store.export_fills())
     trades_path = exports_dir / "phase3-paper-trades.csv"
     fills.to_csv(trades_path, index=False)
-    (docs / "phase3-paper-trades.csv").write_bytes(trades_path.read_bytes())
+    mirrored = _mirror_to_docs(docs, "phase3-paper-trades.csv", trades_path)
     paths["paper_trades"] = trades_path
+    if mirrored is not None:
+        paths["docs_paper_trades"] = mirrored
 
     perf_df = pd.DataFrame(perf.get("rows") or [])
     perf_path = exports_dir / "phase3-forward-performance.csv"
     perf_df.to_csv(perf_path, index=False)
-    (docs / "phase3-forward-performance.csv").write_bytes(perf_path.read_bytes())
+    mirrored = _mirror_to_docs(docs, "phase3-forward-performance.csv", perf_path)
     paths["forward_performance"] = perf_path
+    if mirrored is not None:
+        paths["docs_forward_performance"] = mirrored
 
-    # Mirror config into docs
+    # Mirror config into docs when the agent store is available
     cfg_src = Path("configs/phase3-forward-trading-config.yaml")
-    if cfg_src.exists():
-        (docs / "phase3-forward-trading-config.yaml").write_text(
-            cfg_src.read_text(encoding="utf-8"), encoding="utf-8"
-        )
-        paths["docs_config"] = docs / "phase3-forward-trading-config.yaml"
+    if cfg_src.exists() and docs is not None:
+        dest = docs / "phase3-forward-trading-config.yaml"
+        dest.write_text(cfg_src.read_text(encoding="utf-8"), encoding="utf-8")
+        paths["docs_config"] = dest
 
     meta = store.registration_meta() or {}
     job = store.latest_job() or {}
     md = _validation_report_md(cfg, meta, job, perf, job_detail)
     md_path = exports_dir / "phase3-validation-report.md"
     md_path.write_text(md, encoding="utf-8")
-    (docs / "phase3-validation-report.md").write_text(md, encoding="utf-8")
     paths["validation_report"] = md_path
-    paths["docs_validation_report"] = docs / "phase3-validation-report.md"
+    mirrored = _mirror_to_docs(docs, "phase3-validation-report.md", md_path)
+    if mirrored is not None:
+        paths["docs_validation_report"] = mirrored
 
     # Also dump orders/equity for dashboard
     pd.DataFrame(store.export_orders()).to_csv(exports_dir / "phase3-orders.csv", index=False)
