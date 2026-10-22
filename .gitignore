@@ -22,8 +22,10 @@ htmlcov/
 
 # App artifacts (generated)
 data/**
-reports/**
 !data/.gitkeep
+!data/discovery/
+!data/discovery/.gitkeep
+reports/**
 !reports/.gitkeep
 *.db
 *.sqlite

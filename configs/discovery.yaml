@@ -1,0 +1,50 @@
+# P1 GitHub discovery configuration — never executes third-party code
+min_stars: 5
+max_repos: 80
+shortlist_size: 15
+per_page: 30
+# Optional: set GITHUB_TOKEN / GH_TOKEN in environment for higher rate limits
+queries:
+  - "trading strategy backtest language:Python"
+  - "algorithmic trading strategy language:Python stars:>10"
+  - "quantitative trading backtest language:Python"
+  - "crypto trading strategy backtest language:Python"
+  - "stock trading strategy backtest language:Python"
+  - "ETF momentum strategy language:Python"
+  - "futures trading strategy python backtest"
+  - "donchian breakout trading language:Python"
+  - "mean reversion trading strategy language:Python"
+  - "rsi trading strategy backtest language:Python"
+
+# Markets tagged from query/description heuristics
+market_keywords:
+  equities: ["stock", "equity", "equities", "spx", "spy", "nasdaq"]
+  etf: ["etf", "spy", "qqq", "tlt", "gld"]
+  crypto: ["crypto", "bitcoin", "btc", "eth", "binance", "coin"]
+  gold: ["gold", "xau", "gld", "gc futures"]
+  futures: ["futures", "futures contract", "continuous contract", "cl=", "es="]
+
+# Permissive SPDX identifiers treated as OPEN SOURCE for research reuse
+permissive_spdx:
+  - MIT
+  - Apache-2.0
+  - BSD-2-Clause
+  - BSD-3-Clause
+  - ISC
+  - Unlicense
+  - 0BSD
+  - CC0-1.0
+  - MPL-2.0
+
+# First-party adapter families available after explicit approval (never run upstream code)
+adapter_families:
+  dual_sma: ["sma", "moving average", "dual ma", "golden cross", "ma cross", "moving-average"]
+  ema_trend: ["ema", "exponential moving"]
+  rsi_reversion: ["rsi", "relative strength index"]
+  bollinger_reversion: ["bollinger", "bollinger band"]
+  turtle_breakout: ["turtle", "donchian", "channel breakout"]
+  tsmom: ["momentum", "tsmom", "time series momentum", "trend following"]
+  macd_cross: ["macd"]
+  roc_momentum: ["rate of change", "roc strategy"]
+  zscore_reversion: ["z-score", "zscore", "mean reversion"]
+  atr_breakout: ["atr", "volatility breakout", "breakout"]

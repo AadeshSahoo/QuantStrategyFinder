@@ -2,7 +2,9 @@
 
 Research-only Python app that backtests **first-party baseline** strategies on **real** daily market data, validates them on a chronological holdout, and shows honest PASS/FAIL/INCONCLUSIVE/UNVERIFIED results in a Streamlit dashboard.
 
-This does **not** place live trades, certify future profits, or run untrusted GitHub strategy code (discovery is P1).
+**P1:** GitHub strategy discovery (metadata + license only), review queue, and first-party adapters. **Upstream repository code is never executed.**
+
+This does **not** place live trades or certify future profits.
 
 ## Requirements
 
@@ -48,7 +50,21 @@ qsf report <RUN_ID>
 qsf dashboard --port 8507
 ```
 
-Open [http://127.0.0.1:8507](http://127.0.0.1:8507) after the dashboard starts.
+### P1 discovery (optional token: `GITHUB_TOKEN` / `GH_TOKEN`)
+
+```bash
+# Search GitHub (never executes upstream code)
+qsf discover
+
+# Inspect / approve first-party adapter mappings only
+qsf review list
+qsf review approve-mapped
+
+# Backtest approved adapters with OOS validation + cost stress
+qsf evaluate-discovered
+```
+
+Open [http://127.0.0.1:8507](http://127.0.0.1:8507) after the dashboard starts — **Discovery Queue** tab shows candidates.
 
 Unit tests (no network):
 
@@ -99,8 +115,9 @@ Each `qsf backtest` writes `reports/<run_id>/`:
 ## Known limitations
 
 - Data source is Yahoo Finance via `yfinance` (free, best-effort; not a licensed institutional feed).
-- No GitHub strategy discovery (P1).
-- No walk-forward / bootstrap / multiple-testing battery beyond MVP gates (P1).
+- Discovery adapters are **REIMPLEMENTATION** of rule families (not bit-exact upstream reproduction) unless a human upgrades fidelity.
+- Walk-forward in P1 is a chronological diagnostic on one equity path (parameters not refit per fold).
+- Bootstrap / full multiple-testing corrections are limited; ranking uses predeclared gates + val Sharpe / OOS CAGR / DD.
 - No intraday crypto, gold futures roll models, or perps funding (P2).
 - Missing data fails clearly — results are never fabricated.
 

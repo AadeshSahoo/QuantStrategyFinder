@@ -1,15 +1,16 @@
-"""Streamlit dashboard — displays real run artifacts only."""
+"""Streamlit dashboard — real run artifacts + discovery queue (never executes upstream)."""
 
 from __future__ import annotations
 
 import json
+import sqlite3
 import sys
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
-# Allow `streamlit run ... -- --reports-dir X`
+
 def _parse_reports_dir() -> Path:
     if "--reports-dir" in sys.argv:
         i = sys.argv.index("--reports-dir")
@@ -19,6 +20,7 @@ def _parse_reports_dir() -> Path:
 
 
 REPORTS_DIR = _parse_reports_dir()
+DISCOVERY_DB = Path("data/discovery/candidates.sqlite")
 
 
 def list_run_ids(reports_dir: Path) -> list[str]:
@@ -36,82 +38,173 @@ def load_summary(reports_dir: Path, run_id: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def load_discovery_rows(db_path: Path = DISCOVERY_DB) -> list[dict]:
+    if not db_path.exists():
+        return []
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute(
+        "SELECT * FROM candidates ORDER BY shortlisted DESC, reproducibility_score DESC, stars DESC"
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def equity_stem(row: dict) -> str:
+    sid, sym = row.get("strategy_id"), row.get("symbol")
+    if row.get("kind") == "adapter" or (row.get("attribution") or {}).get("adapter_id"):
+        return f"adapter_{sid}_{sym}"
+    return f"{sid}_{sym}"
+
+
 def main() -> None:
     st.set_page_config(page_title="QuantStrategyFinder", layout="wide")
     st.title("QuantStrategyFinder")
     st.caption(
-        "Research-only. Metrics come from recorded run artifacts — never hardcoded demo numbers."
+        "Research-only. Metrics come from recorded run artifacts — never hardcoded demo numbers. "
+        "Discovery never executes third-party GitHub code."
     )
 
     runs = list_run_ids(REPORTS_DIR)
-    if not runs:
-        st.error(
-            f"No runs found under `{REPORTS_DIR.resolve()}`. "
-            "Run `qsf backtest` first to generate artifacts."
-        )
-        st.stop()
+    discovery_rows = load_discovery_rows()
 
-    run_id = st.sidebar.selectbox("Run ID", runs)
-    summary = load_summary(REPORTS_DIR, run_id)
-    artifact_dir = Path(summary.get("artifact_dir") or (REPORTS_DIR / run_id))
-
-    st.sidebar.markdown(f"**Created:** {summary.get('created_at', 'N/A')}")
-    st.sidebar.markdown(f"**Git:** `{summary.get('git_commit', 'N/A')}`")
-    st.sidebar.markdown(f"**Equity:** ${summary.get('starting_equity', 200)}")
-
-    if not summary.get("any_passed"):
-        st.warning(summary.get("message") or "NO STRATEGY PASSED VALIDATION")
-
-    tab_overview, tab_board, tab_detail, tab_data, tab_feas = st.tabs(
-        ["Overview", "Leaderboard", "Strategy Detail", "Data Provenance", "$200 Feasibility"]
+    tab_overview, tab_discover, tab_board, tab_detail, tab_data, tab_feas = st.tabs(
+        [
+            "Overview",
+            "Discovery Queue",
+            "Leaderboard",
+            "Strategy Detail",
+            "Data Provenance",
+            "$200 Feasibility",
+        ]
     )
+
+    run_id = None
+    summary: dict = {}
+    artifact_dir = REPORTS_DIR
+
+    with st.sidebar:
+        st.subheader("Backtest run")
+        if runs:
+            run_id = st.selectbox("Run ID", runs)
+            summary = load_summary(REPORTS_DIR, run_id)
+            artifact_dir = Path(summary.get("artifact_dir") or (REPORTS_DIR / run_id))
+            st.markdown(f"**Created:** {summary.get('created_at', 'N/A')}")
+            st.markdown(f"**Git:** `{summary.get('git_commit', 'N/A')}`")
+            st.markdown(f"**Equity:** ${summary.get('starting_equity', 200)}")
+            st.markdown(f"**Kind:** `{summary.get('kind', 'baseline')}`")
+            if not summary.get("any_passed"):
+                st.warning(summary.get("message") or "NO STRATEGY PASSED VALIDATION")
+            counts = summary.get("counts") or {}
+            if counts:
+                st.json(counts)
+        else:
+            st.info("No backtest runs yet. Discovery queue still available.")
+
+    with tab_discover:
+        st.subheader("GitHub discovery queue")
+        st.write(
+            "Metadata-only search results. Upstream repositories are **never executed**. "
+            "Approved items authorize first-party adapters only (`REIMPLEMENTATION` by default)."
+        )
+        if not discovery_rows:
+            st.warning(
+                f"No candidates in `{DISCOVERY_DB}`. Run `qsf discover` then "
+                "`qsf review approve-mapped` / `qsf evaluate-discovered`."
+            )
+        else:
+            short = [r for r in discovery_rows if r.get("shortlisted")]
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Discovered", len(discovery_rows))
+            c2.metric("Shortlisted", len(short))
+            c3.metric(
+                "OPEN SOURCE",
+                sum(1 for r in discovery_rows if r.get("open_source_badge") == "OPEN SOURCE"),
+            )
+            c4.metric(
+                "Approved",
+                sum(1 for r in discovery_rows if r.get("review_status") == "approved"),
+            )
+            view = st.radio("Show", ["Shortlist", "All"], horizontal=True)
+            rows = short if view == "Shortlist" else discovery_rows
+            table = pd.DataFrame(
+                [
+                    {
+                        "repo": r.get("repo_full_name"),
+                        "stars": r.get("stars"),
+                        "license": r.get("license_spdx"),
+                        "badge": r.get("open_source_badge"),
+                        "score": r.get("reproducibility_score"),
+                        "adapter": r.get("adapter_id"),
+                        "fidelity": r.get("fidelity"),
+                        "status": r.get("review_status"),
+                        "url": r.get("html_url"),
+                    }
+                    for r in rows
+                ]
+            )
+            st.dataframe(table, use_container_width=True)
+            st.caption("Claimed upstream README metrics are AUTHOR-CLAIMED only — not verified here.")
 
     with tab_overview:
         st.subheader("Run overview")
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Symbols", len(summary.get("symbols") or []))
-        c2.metric("Strategies", len(summary.get("strategies") or []))
-        n_pass = sum(1 for r in summary.get("leaderboard") or [] if r.get("status") == "PASS")
-        c3.metric("PASS count", n_pass)
-        st.write("Symbols:", ", ".join(summary.get("symbols") or []))
-        for w in summary.get("warnings") or []:
-            st.warning(w)
-        report_path = artifact_dir / "report.md"
-        if report_path.exists():
-            with st.expander("Markdown report"):
-                st.markdown(report_path.read_text(encoding="utf-8"))
+        if not summary:
+            st.info("Select a run in the sidebar (after `qsf backtest` or `qsf evaluate-discovered`).")
+        else:
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Symbols", len(summary.get("symbols") or []))
+            c2.metric("Strategies", len(summary.get("strategies") or []))
+            n_pass = sum(1 for r in summary.get("leaderboard") or [] if r.get("status") == "PASS")
+            c3.metric("PASS count", n_pass)
+            st.write("Symbols:", ", ".join(summary.get("symbols") or []))
+            for w in summary.get("warnings") or []:
+                st.warning(w)
+            if summary.get("safety"):
+                st.info(f"Safety: {summary['safety']}")
+            report_path = artifact_dir / "report.md"
+            if report_path.exists():
+                with st.expander("Markdown report"):
+                    st.markdown(report_path.read_text(encoding="utf-8"))
 
     with tab_board:
         st.subheader("Validation leaderboard")
         rows = summary.get("leaderboard") or []
         if not rows:
-            st.info("No candidates evaluated.")
+            st.info("No candidates evaluated in the selected run.")
         else:
             table = []
             for r in rows:
                 mt = r.get("metrics_test") or {}
                 mv = r.get("metrics_val") or {}
                 fm = r.get("full_sample_metrics") or {}
+                attr = r.get("attribution") or {}
                 table.append(
                     {
+                        "rank": r.get("rank"),
                         "strategy": r.get("strategy_id"),
                         "symbol": r.get("symbol"),
                         "status": r.get("status"),
                         "eligible": r.get("eligible_for_ranking"),
                         "val_sharpe": mv.get("sharpe"),
-                        "test_total_return": mt.get("total_return"),
-                        "test_max_dd": mt.get("max_drawdown"),
-                        "full_cagr": fm.get("cagr"),
+                        "oos_cagr": mt.get("cagr"),
+                        "oos_total_return": mt.get("total_return"),
+                        "oos_max_dd": mt.get("max_drawdown"),
                         "actual_mean_monthly": fm.get("actual_mean_monthly_return"),
                         "monthly_from_cagr": fm.get("monthly_compounded_equivalent"),
-                        "n_trades_full": fm.get("n_trades"),
+                        "feasibility_200": r.get("feasibility_200"),
+                        "fidelity": attr.get("fidelity"),
+                        "source_repo": attr.get("source_repo"),
+                        "n_trades": fm.get("n_trades"),
                     }
                 )
             st.dataframe(pd.DataFrame(table), use_container_width=True)
             st.caption(
-                "actual_mean_monthly = observed calendar-month returns; "
-                "monthly_from_cagr = (1+CAGR)^(1/12)-1 (not observed)."
+                "Ranking uses validation Sharpe, then OOS (test) CAGR, then lower |max DD|. "
+                "actual_mean_monthly is observed; monthly_from_cagr is derived from CAGR."
             )
+            eligible = summary.get("eligible_ranked") or []
+            if not eligible:
+                st.warning(summary.get("message") or "NO STRATEGY PASSED VALIDATION")
 
     with tab_detail:
         st.subheader("Strategy detail")
@@ -122,16 +215,24 @@ def main() -> None:
         else:
             choice = st.selectbox("Candidate", labels)
             r = rows[labels.index(choice)]
-            stem = f"{r['strategy_id']}_{r['symbol']}"
+            stem = equity_stem(r)
+            if r.get("attribution"):
+                st.markdown("**Attribution / fidelity**")
+                st.json(r["attribution"])
             st.json({"status": r["status"], "reasons": r.get("reasons")})
+            if r.get("cost_stress_val"):
+                st.write("Cost stress (validation window)")
+                st.json(r["cost_stress_val"])
+            if r.get("walkforward"):
+                st.write("Walk-forward diagnostic")
+                st.json(r["walkforward"])
             eq_path = artifact_dir / f"equity_{stem}.csv"
             if eq_path.exists():
                 eq = pd.read_csv(eq_path, parse_dates=["Date"], index_col="Date")
                 st.line_chart(eq["equity"], height=280)
-                if "equity" in eq.columns:
-                    peak = eq["equity"].cummax()
-                    dd = eq["equity"] / peak - 1.0
-                    st.line_chart(dd.rename("drawdown"), height=200)
+                peak = eq["equity"].cummax()
+                dd = eq["equity"] / peak - 1.0
+                st.line_chart(dd.rename("drawdown"), height=200)
                 fm = r.get("full_sample_metrics") or {}
                 months = fm.get("actual_monthly_returns") or {}
                 if months:
@@ -140,6 +241,8 @@ def main() -> None:
                         pd.Series(months, name="actual_monthly_return").to_frame(),
                         use_container_width=True,
                     )
+            else:
+                st.warning(f"Equity file missing: {eq_path.name}")
             trades_path = artifact_dir / f"trades_{stem}.csv"
             if trades_path.exists():
                 st.write("Trade ledger")
@@ -153,7 +256,7 @@ def main() -> None:
         st.subheader("Data provenance")
         prov = summary.get("provenance") or {}
         if not prov:
-            st.error("No provenance recorded for this run.")
+            st.info("No provenance on selected run.")
         else:
             for sym, p in prov.items():
                 st.markdown(
@@ -168,33 +271,34 @@ def main() -> None:
 
     with tab_feas:
         st.subheader("$200 account feasibility")
-        st.write(
-            "MVP rejects orders that would require more cash than available or fall below "
-            f"minimum notional. Starting equity for this run: "
-            f"**${summary.get('starting_equity', 200)}**."
-        )
-        st.write(
-            "Futures margin / crypto perpetual funding are **not** modeled yet (P2). "
-            "Only long/flat ETF and BTC-USD spot baselines are ranked."
-        )
-        # Show rejection samples if any result files include them
-        found = False
-        for path in sorted(artifact_dir.glob("result_*.json")):
-            data = json.loads(path.read_text(encoding="utf-8"))
-            rejs = data.get("rejections") or []
-            if rejs:
-                found = True
-                st.write(f"Rejections in `{path.name}`: {len(rejs)}")
-                st.dataframe(pd.DataFrame(rejs), use_container_width=True)
-        if not found:
-            st.info("No order rejections recorded in this run.")
-
-        st.download_button(
-            "Download summary.json",
-            data=json.dumps(summary, indent=2, default=str),
-            file_name=f"{run_id}_summary.json",
-            mime="application/json",
-        )
+        if not summary:
+            st.info("Select a run to inspect feasibility diagnostics.")
+        else:
+            st.write(
+                "Orders that need more cash than available or fall below min notional are rejected. "
+                f"Starting equity: **${summary.get('starting_equity', 200)}**."
+            )
+            st.write(
+                "Futures margin / crypto perpetual funding are **not** modeled (P2). "
+                "GLD is a gold ETF proxy, not XAUUSD."
+            )
+            found = False
+            for path in sorted(artifact_dir.glob("result_*.json")):
+                data = json.loads(path.read_text(encoding="utf-8"))
+                rejs = data.get("rejections") or []
+                if rejs:
+                    found = True
+                    st.write(f"Rejections in `{path.name}`: {len(rejs)}")
+                    st.dataframe(pd.DataFrame(rejs), use_container_width=True)
+            if not found:
+                st.info("No order rejections recorded in this run.")
+            if run_id:
+                st.download_button(
+                    "Download summary.json",
+                    data=json.dumps(summary, indent=2, default=str),
+                    file_name=f"{run_id}_summary.json",
+                    mime="application/json",
+                )
 
 
 if __name__ == "__main__":

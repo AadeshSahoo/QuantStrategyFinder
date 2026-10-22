@@ -165,11 +165,110 @@ def dashboard_cmd(reports_dir: str, port: int, host: str) -> None:
 
 
 @main.command("discover")
-def discover_cmd() -> None:
-    """P1 placeholder — GitHub discovery not in MVP."""
-    raise click.ClickException(
-        "GitHub discovery is P1 and not implemented. MVP uses first-party baselines only."
+@click.option("--config", "config_path", default="configs/discovery.yaml", show_default=True)
+@click.option("--store", "store_path", default="data/discovery/candidates.sqlite", show_default=True)
+@click.option("--no-commits", is_flag=True, help="Skip per-repo commit SHA fetch (faster)")
+@click.option("--no-wait", is_flag=True, help="Fail instead of sleeping on rate limit")
+def discover_cmd(config_path: str, store_path: str, no_commits: bool, no_wait: bool) -> None:
+    """Search GitHub for strategy repos (metadata only — never executes upstream code)."""
+    from quantstrategyfinder.discovery.github import discover_repositories
+
+    summary = discover_repositories(
+        config_path=config_path,
+        store_path=store_path,
+        fetch_commits=not no_commits,
+        wait_on_rate_limit=not no_wait,
     )
+    click.echo(json.dumps(summary, indent=2))
+
+
+@main.group("review")
+def review_group() -> None:
+    """Candidate review queue (approve first-party adapters only)."""
+
+
+@review_group.command("list")
+@click.option("--store", "store_path", default="data/discovery/candidates.sqlite", show_default=True)
+@click.option("--all", "show_all", is_flag=True, help="Include non-shortlisted")
+def review_list(store_path: str, show_all: bool) -> None:
+    from quantstrategyfinder.discovery.review import review_queue
+    from quantstrategyfinder.discovery.store import CandidateStore
+
+    rows = review_queue(CandidateStore(store_path), shortlisted_only=not show_all)
+    for r in rows:
+        click.echo(
+            f"{r['review_status']:10} score={r['reproducibility_score']!s:>6} "
+            f"stars={r['stars']:<6} {r['open_source_badge']:<28} "
+            f"adapter={r.get('adapter_id') or '-':16} {r['repo_full_name']}"
+        )
+    click.echo(f"count={len(rows)}")
+
+
+@review_group.command("approve")
+@click.argument("repo_full_name")
+@click.option("--adapter", "adapter_id", required=True, help="First-party adapter id")
+@click.option("--fidelity", default="REIMPLEMENTATION", show_default=True,
+              type=click.Choice(["REIMPLEMENTATION", "REPRODUCED ORIGINAL"]))
+@click.option("--note", default="")
+@click.option("--store", "store_path", default="data/discovery/candidates.sqlite", show_default=True)
+def review_approve(
+    repo_full_name: str, adapter_id: str, fidelity: str, note: str, store_path: str
+) -> None:
+    from quantstrategyfinder.discovery.review import approve_candidate
+    from quantstrategyfinder.discovery.store import CandidateStore
+
+    row = approve_candidate(
+        repo_full_name,
+        adapter_id=adapter_id,
+        fidelity=fidelity,
+        note=note,
+        store=CandidateStore(store_path),
+    )
+    click.echo(json.dumps({k: row.get(k) for k in (
+        "repo_full_name", "review_status", "adapter_id", "fidelity", "approval_note"
+    )}, indent=2))
+
+
+@review_group.command("approve-mapped")
+@click.option("--store", "store_path", default="data/discovery/candidates.sqlite", show_default=True)
+def review_approve_mapped(store_path: str) -> None:
+    """Approve shortlisted OPEN SOURCE candidates that already have adapter mappings."""
+    from quantstrategyfinder.discovery.review import approve_shortlist_mapped
+    from quantstrategyfinder.discovery.store import CandidateStore
+
+    rows = approve_shortlist_mapped(store=CandidateStore(store_path))
+    click.echo(f"approved={len(rows)}")
+    for r in rows:
+        click.echo(f"  {r['repo_full_name']} -> {r['adapter_id']} ({r['fidelity']})")
+
+
+@main.command("evaluate-discovered")
+@click.option("--config", "config_path", default="configs/default.yaml", show_default=True)
+@click.option("--store", "store_path", default="data/discovery/candidates.sqlite", show_default=True)
+@click.option("--reports-dir", default="reports", show_default=True)
+@click.option("--auto-approve-mapped", is_flag=True,
+              help="Approve shortlisted mapped OPEN SOURCE adapters before eval")
+def evaluate_discovered_cmd(
+    config_path: str, store_path: str, reports_dir: str, auto_approve_mapped: bool
+) -> None:
+    """Backtest approved first-party adapters (never executes upstream repos)."""
+    from quantstrategyfinder.discovery.evaluate import evaluate_approved_adapters
+
+    summary = evaluate_approved_adapters(
+        config_path=config_path,
+        store_path=store_path,
+        reports_dir=reports_dir,
+        auto_approve_mapped=auto_approve_mapped,
+    )
+    click.echo(f"run_id={summary['run_id']}")
+    click.echo(json.dumps(summary.get("counts"), indent=2))
+    if summary.get("message"):
+        click.echo(summary["message"])
+    for row in summary.get("eligible_ranked") or []:
+        click.echo(
+            f"  rank={row.get('rank')} {row['strategy_id']:16} {row['symbol']:8} "
+            f"{row['status']} fidelity={row['attribution'].get('fidelity')}"
+        )
 
 
 @main.command("test")
