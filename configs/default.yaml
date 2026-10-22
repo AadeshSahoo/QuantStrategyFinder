@@ -1,0 +1,53 @@
+# QuantStrategyFinder default research configuration (P0 MVP)
+starting_equity: 200.0
+currency: USD
+
+universe:
+  - SPY
+  - QQQ
+  - GLD
+  - TLT
+  - BTC-USD
+
+data:
+  interval: 1d
+  lookback_years: 10
+  cache_dir: data/cache
+  adjusted: true
+  timezone: UTC
+
+costs:
+  # Base assumptions for liquid ETFs / BTC spot (research estimates, not brokerage quotes)
+  commission_per_trade: 0.0
+  commission_pct: 0.0
+  spread_bps: 2.0
+  slippage_bps: 5.0
+  min_notional: 1.0
+  allow_fractional: true
+
+splits:
+  train_frac: 0.50
+  val_frac: 0.25
+  test_frac: 0.25
+
+validation:
+  min_bars: 252
+  min_trades: 5
+  max_drawdown_fail: 0.50
+  # Sharpe below this on validation → FAIL for ranking eligibility
+  min_val_sharpe: -0.5
+
+strategies:
+  ma_trend:
+    fast: 50
+    slow: 200
+  donchian:
+    entry_lookback: 20
+    exit_lookback: 10
+  momentum:
+    lookback: 60
+    hold_threshold: 0.0
+
+benchmarks:
+  - SPY
+  - cash

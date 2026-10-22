@@ -1,0 +1,102 @@
+# Phase 2 research configuration — separate from P1 defaults
+starting_equity: 200.0
+currency: USD
+results_dir: reports/phase2
+cache_dir: data/cache
+lookback_years: 10
+
+costs:
+  commission_per_trade: 0.0
+  commission_pct: 0.0
+  spread_bps: 2.0
+  slippage_bps: 5.0
+  min_notional: 1.0
+  allow_fractional: true
+
+splits:
+  train_frac: 0.50
+  val_frac: 0.25
+  test_frac: 0.25
+
+# Precommitted validated gates (never loosen to fill the board)
+validation:
+  min_oos_bars: 126
+  min_oos_activity: 10
+  max_oos_drawdown: 0.35
+  min_val_sharpe_at_2x_cost: -0.5
+  require_positive_oos_cagr: true
+  require_beat_buy_and_hold: true
+  require_monthly_ci_low_gt_0: true
+  bh_fdr_q: 0.10
+  bootstrap_n: 1000
+  bootstrap_seed: 42
+
+universe:
+  equities:
+    - SPY
+    - QQQ
+    - IWM
+    - DIA
+    - AAPL
+    - MSFT
+    - NVDA
+    - AMZN
+    - META
+    - TSLA
+  fixed_income:
+    - TLT
+    - IEF
+    - SHY
+    - BND
+    - HYG
+    - LQD
+  commodities:
+    - GLD
+    - SLV
+    - USO
+    - DBC
+  crypto:
+    - BTC-USD
+    - ETH-USD
+    - SOL-USD
+  fx:
+    - EURUSD=X
+    - GBPUSD=X
+    - USDJPY=X
+
+# Per-market annualization (trading periods / year)
+annualization:
+  equities: 252
+  fixed_income: 252
+  commodities: 252
+  crypto: 365
+  fx: 252
+
+# Instrument constraints for $200 cash-account path
+constraints:
+  allow_short: false
+  allow_margin: false
+  allow_futures: false
+  # FX typically needs larger notionals for standard lots; mark infeasible unless fractional micro
+  fx_min_notional_usd: 1000.0
+
+strategies:
+  # Existing first-party adapters / baselines (REIMPLEMENTATION)
+  - dual_sma
+  - ema_trend
+  - tsmom
+  - turtle_breakout
+  - atr_breakout
+  - rsi_reversion
+  - bollinger_reversion
+  - zscore_reversion
+  - macd_cross
+  - roc_momentum
+  # Phase 2 additions
+  - supertrend
+  - short_reversal
+  - vol_target_trend
+
+smoke:
+  symbols: [SPY, GLD, BTC-USD]
+  strategies: [ema_trend, rsi_reversion, supertrend]

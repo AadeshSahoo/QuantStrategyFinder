@@ -1,0 +1,66 @@
+# Phase 3 automated SIMULATED paper trading (NOT live brokerage).
+# Durable state: git branch `phase3-ledger` (SQLite + exports), not ephemeral runner disk.
+# Prefer: public GitHub repo Actions (free) OR Origin + Depot CI (`.depot/workflows/` mirror).
+name: Phase 3 paper trading (SIMULATED)
+
+on:
+  schedule:
+    # Weekdays after US cash equity close (UTC). Crypto candidates also update here.
+    - cron: "45 21 * * 1-5"
+    # Weekend catch-up for crypto sessions.
+    - cron: "15 12 * * 0,6"
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Why is this manual run being triggered?"
+        required: false
+        default: "manual verification"
+
+concurrency:
+  group: phase3-paper-trading
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  paper:
+    name: Restore → run → persist ledger
+    runs-on: depot-ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Configure git identity for ledger pushes
+        run: |
+          git config --global user.name "qsf-phase3-bot"
+          git config --global user.email "phase3-bot@users.noreply.github.com"
+
+      - name: Run Phase 3 CI job (restore, ingest, persist)
+        env:
+          PHASE3_EXPECTED_CONFIG_HASH: 774936e63dedec57f05aac1831aee23f3e3ddcdc634ef9ff4c9b1d6b58f3fd8f
+          GIT_AUTHOR_NAME: qsf-phase3-bot
+          GIT_AUTHOR_EMAIL: phase3-bot@users.noreply.github.com
+        run: |
+          chmod +x scripts/phase3_ledger.sh scripts/phase3_ci_job.sh scripts/phase3_paper_job.py
+          bash scripts/phase3_ci_job.sh
+
+      - name: Upload run logs (ephemeral artifact; ledger branch is source of truth)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase3-run-logs
+          path: |
+            reports/phase3/last_ci_run.json
+            reports/phase3/last_job_stdout.txt
+            reports/phase3/phase3-validation-report.md
+          if-no-files-found: warn
+          retention-days: 30

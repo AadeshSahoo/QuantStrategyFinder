@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.env
+.python-version
+
+# Tooling
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.idea/
+.vscode/
+
+# Local Phase 3 ledger worktree (never commit; remote branch is phase3-ledger)
+.phase3-ledger/
+
+# App artifacts (generated)
+data/**
+!data/.gitkeep
+!data/discovery/
+!data/discovery/.gitkeep
+!data/phase3/
+!data/phase3/.gitkeep
+!data/phase3/registered_config_snapshot.yaml
+reports/**
+!reports/.gitkeep
+!reports/phase2/
+!reports/phase2/.gitkeep
+!reports/phase3/
+!reports/phase3/.gitkeep
+!reports/phase3/*.csv
+!reports/phase3/*.md
+!reports/phase3/*.json
+*.db
+*.sqlite
+*.parquet
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Virtualenv
+.venv/

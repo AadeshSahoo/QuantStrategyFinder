@@ -1,0 +1,2 @@
+id,order_key,candidate_id,exec_date,side,qty,mid_price,fill_price,notional,commission,spread_slippage_cost,created_at
+1,atr_breakout_ETH-USD|2026-10-22|rebalance,atr_breakout_ETH-USD,2026-10-22,buy,0.08074575816847646,2471.3466796875,2474.4358630371094,199.80019980019975,0.19980019980019975,0.2494384516856412,2026-10-22T02:59:39.396438+00:00
