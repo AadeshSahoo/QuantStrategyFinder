@@ -1,0 +1,29 @@
+{
+  "label": "SIMULATED_PAPER_TRADING_NOT_LIVE",
+  "finished_at_utc": "2026-10-24T15:53:03.015779+00:00",
+  "exit_code": 0,
+  "config_hash": "774936e63dedec57f05aac1831aee23f3e3ddcdc634ef9ff4c9b1d6b58f3fd8f",
+  "expected_config_hash": "774936e63dedec57f05aac1831aee23f3e3ddcdc634ef9ff4c9b1d6b58f3fd8f",
+  "config_hash_ok": true,
+  "job_detail": {
+    "job_id": 12,
+    "exports": {
+      "paper_trades": "reports/phase3/phase3-paper-trades.csv",
+      "forward_performance": "reports/phase3/phase3-forward-performance.csv",
+      "validation_report": "reports/phase3/phase3-validation-report.md"
+    },
+    "summary": {
+      "n_candidates": 5,
+      "n_insufficient_evidence": 5,
+      "n_forward_running_unvalidated": 0,
+      "n_statistically_validated": 0,
+      "multiple_testing_n": 5,
+      "forward_start_date": "2026-10-22",
+      "message": "No candidate is labeled STATISTICALLY VALIDATED on this forward sample. "
+    },
+    "scheduler_note": "Paper job completed. Durable ledger lives on git branch `phase3-ledger`. Official ACTIVE forward testing requires the CI schedule (.github/workflows/phase3-paper.yml or .depot/workflows/phase3-paper.yml) to run on a connected provider \u2014 see docs/phase3-scheduler.md and /cursor/stores/self/docs/phase3-activation.md."
+  },
+  "ingestion_ok": true,
+  "warnings": null,
+  "job_id": 12
+}
