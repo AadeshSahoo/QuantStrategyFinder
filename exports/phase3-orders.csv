@@ -1,2 +1,7 @@
 id,candidate_id,order_key,signal_date,exec_date,side,target_weight,status,reason
 1,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-10-22|rebalance,2026-10-20,2026-10-22,buy,1.0,filled,
+3,bollinger_reversion_AMZN,bollinger_reversion_AMZN|2026-10-22|rebalance,2026-10-21,2026-10-22,none,0.0,skipped,below_min_notional
+4,dual_sma_SHY,dual_sma_SHY|2026-10-22|rebalance,2026-10-21,2026-10-22,buy,1.0,filled,
+5,tsmom_NVDA,tsmom_NVDA|2026-10-22|rebalance,2026-10-21,2026-10-22,buy,1.0,filled,
+6,zscore_reversion_META,zscore_reversion_META|2026-10-22|rebalance,2026-10-21,2026-10-22,buy,1.0,filled,
+2,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-10-24|rebalance,2026-10-22,2026-10-24,none,1.0,skipped,below_min_notional

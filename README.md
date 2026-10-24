@@ -4,6 +4,6 @@
 
 - Branch: `phase3-ledger`
 - Frozen config hash: `774936e63dedec57f05aac1831aee23f3e3ddcdc634ef9ff4c9b1d6b58f3fd8f`
-- Last persist (UTC): `20261023T001138Z`
+- Last persist (UTC): `20261024T000350Z`
 
 Do not edit strategy parameters here. Rebuild from `configs/phase3-forward-trading-config.yaml` only via `qsf phase3 register` on an empty DB.
