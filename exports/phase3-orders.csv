@@ -17,3 +17,7 @@ id,candidate_id,order_key,signal_date,exec_date,side,target_weight,status,reason
 17,tsmom_NVDA,tsmom_NVDA|2026-10-26|rebalance,2026-10-23,2026-10-26,none,1.0,skipped,below_min_notional
 18,zscore_reversion_META,zscore_reversion_META|2026-10-26|rebalance,2026-10-23,2026-10-26,none,1.0,skipped,below_min_notional
 13,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-10-27|rebalance,2026-10-25,2026-10-27,none,1.0,skipped,below_min_notional
+19,bollinger_reversion_AMZN,bollinger_reversion_AMZN|2026-10-27|rebalance,2026-10-26,2026-10-27,none,0.0,skipped,below_min_notional
+20,dual_sma_SHY,dual_sma_SHY|2026-10-27|rebalance,2026-10-26,2026-10-27,none,1.0,skipped,below_min_notional
+21,tsmom_NVDA,tsmom_NVDA|2026-10-27|rebalance,2026-10-26,2026-10-27,none,1.0,skipped,below_min_notional
+22,zscore_reversion_META,zscore_reversion_META|2026-10-27|rebalance,2026-10-26,2026-10-27,none,1.0,skipped,below_min_notional
