@@ -1,12 +1,12 @@
 {
   "label": "SIMULATED_PAPER_TRADING_NOT_LIVE",
-  "finished_at_utc": "2026-10-29T01:15:56.545920+00:00",
+  "finished_at_utc": "2026-10-30T01:22:20.814874+00:00",
   "exit_code": 0,
   "config_hash": "774936e63dedec57f05aac1831aee23f3e3ddcdc634ef9ff4c9b1d6b58f3fd8f",
   "expected_config_hash": "774936e63dedec57f05aac1831aee23f3e3ddcdc634ef9ff4c9b1d6b58f3fd8f",
   "config_hash_ok": true,
   "job_detail": {
-    "job_id": 16,
+    "job_id": 17,
     "exports": {
       "paper_trades": "reports/phase3/phase3-paper-trades.csv",
       "forward_performance": "reports/phase3/phase3-forward-performance.csv",
@@ -25,5 +25,5 @@
   },
   "ingestion_ok": true,
   "warnings": null,
-  "job_id": 16
+  "job_id": 17
 }
