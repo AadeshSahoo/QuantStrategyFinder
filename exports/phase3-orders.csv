@@ -43,4 +43,10 @@ id,candidate_id,order_key,signal_date,exec_date,side,target_weight,status,reason
 41,dual_sma_SHY,dual_sma_SHY|2026-11-02|rebalance,2026-10-30,2026-11-02,none,1.0,skipped,below_min_notional
 42,tsmom_NVDA,tsmom_NVDA|2026-11-02|rebalance,2026-10-30,2026-11-02,sell,0.0,filled,
 43,zscore_reversion_META,zscore_reversion_META|2026-11-02|rebalance,2026-10-30,2026-11-02,none,1.0,skipped,below_min_notional
+46,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-11-03|rebalance,2026-11-02,2026-11-03,none,1.0,skipped,below_min_notional
+48,bollinger_reversion_AMZN,bollinger_reversion_AMZN|2026-11-03|rebalance,2026-11-02,2026-11-03,none,1.0,skipped,below_min_notional
+49,dual_sma_SHY,dual_sma_SHY|2026-11-03|rebalance,2026-11-02,2026-11-03,none,1.0,skipped,below_min_notional
+50,tsmom_NVDA,tsmom_NVDA|2026-11-03|rebalance,2026-11-02,2026-11-03,none,0.0,skipped,below_min_notional
+51,zscore_reversion_META,zscore_reversion_META|2026-11-03|rebalance,2026-11-02,2026-11-03,none,1.0,skipped,below_min_notional
 45,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-11-04|rebalance,2026-11-02,2026-11-04,none,1.0,skipped,below_min_notional
+47,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-11-05|rebalance,2026-11-03,2026-11-05,none,1.0,skipped,below_min_notional
