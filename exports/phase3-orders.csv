@@ -64,3 +64,4 @@ id,candidate_id,order_key,signal_date,exec_date,side,target_weight,status,reason
 64,tsmom_NVDA,tsmom_NVDA|2026-11-06|rebalance,2026-11-05,2026-11-06,none,0.0,skipped,below_min_notional
 65,zscore_reversion_META,zscore_reversion_META|2026-11-06|rebalance,2026-11-05,2026-11-06,none,1.0,skipped,below_min_notional
 57,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-11-07|rebalance,2026-11-05,2026-11-07,sell,0.0,filled,
+66,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-11-08|rebalance,2026-11-07,2026-11-08,none,0.0,skipped,below_min_notional
