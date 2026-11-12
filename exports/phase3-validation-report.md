@@ -7,7 +7,7 @@
 - Registered at: 2026-10-22T02:59:17.564177+00:00
 - Forward start: **2026-10-22** (after Phase 2 OOS consumption)
 - Candidates registered: **5**
-- Latest job: id=29 status=`completed` finished=2026-11-11T01:29:43.742839+00:00
+- Latest job: id=30 status=`completed` finished=2026-11-12T02:32:54.981726+00:00
 
 ## Integrity
 
@@ -28,11 +28,11 @@
 
 | Candidate | Symbol | Days | Fills | Total return | vs BAH | Status |
 |---|---|---:|---:|---:|---:|---|
-| atr_breakout_ETH-USD | ETH-USD | 19 | 2 | -9.96% | N/A | `INSUFFICIENT_EVIDENCE` |
-| bollinger_reversion_AMZN | AMZN | 13 | 2 | 16.47% | N/A | `INSUFFICIENT_EVIDENCE` |
-| dual_sma_SHY | SHY | 13 | 1 | 0.11% | N/A | `INSUFFICIENT_EVIDENCE` |
-| tsmom_NVDA | NVDA | 13 | 4 | -8.32% | N/A | `INSUFFICIENT_EVIDENCE` |
-| zscore_reversion_META | META | 13 | 1 | -5.28% | N/A | `INSUFFICIENT_EVIDENCE` |
+| atr_breakout_ETH-USD | ETH-USD | 21 | 2 | -9.96% | N/A | `INSUFFICIENT_EVIDENCE` |
+| bollinger_reversion_AMZN | AMZN | 14 | 2 | 16.47% | N/A | `INSUFFICIENT_EVIDENCE` |
+| dual_sma_SHY | SHY | 14 | 1 | -0.22% | N/A | `INSUFFICIENT_EVIDENCE` |
+| tsmom_NVDA | NVDA | 14 | 4 | -8.32% | N/A | `INSUFFICIENT_EVIDENCE` |
+| zscore_reversion_META | META | 14 | 1 | -5.27% | N/A | `INSUFFICIENT_EVIDENCE` |
 
 ## Warnings / data notes
 
