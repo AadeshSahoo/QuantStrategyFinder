@@ -7,7 +7,7 @@
 - Registered at: 2026-10-22T02:59:17.564177+00:00
 - Forward start: **2026-10-22** (after Phase 2 OOS consumption)
 - Candidates registered: **5**
-- Latest job: id=33 status=`completed` finished=2026-11-14T17:57:48.354375+00:00
+- Latest job: id=34 status=`completed` finished=2026-11-15T18:47:15.681509+00:00
 
 ## Integrity
 
@@ -28,7 +28,7 @@
 
 | Candidate | Symbol | Days | Fills | Total return | vs BAH | Status |
 |---|---|---:|---:|---:|---:|---|
-| atr_breakout_ETH-USD | ETH-USD | 24 | 2 | -9.96% | N/A | `INSUFFICIENT_EVIDENCE` |
+| atr_breakout_ETH-USD | ETH-USD | 25 | 2 | -9.96% | N/A | `INSUFFICIENT_EVIDENCE` |
 | bollinger_reversion_AMZN | AMZN | 17 | 2 | 16.47% | N/A | `INSUFFICIENT_EVIDENCE` |
 | dual_sma_SHY | SHY | 17 | 1 | -0.40% | N/A | `INSUFFICIENT_EVIDENCE` |
 | tsmom_NVDA | NVDA | 17 | 4 | -8.32% | N/A | `INSUFFICIENT_EVIDENCE` |

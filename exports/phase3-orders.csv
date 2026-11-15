@@ -91,3 +91,4 @@ id,candidate_id,order_key,signal_date,exec_date,side,target_weight,status,reason
 90,tsmom_NVDA,tsmom_NVDA|2026-11-13|rebalance,2026-11-12,2026-11-13,none,0.0,skipped,below_min_notional
 92,zscore_reversion_META,zscore_reversion_META|2026-11-13|rebalance,2026-11-12,2026-11-13,none,0.0,skipped,below_min_notional
 84,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-11-14|rebalance,2026-11-12,2026-11-14,none,0.0,skipped,below_min_notional
+93,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-11-15|rebalance,2026-11-14,2026-11-15,none,0.0,skipped,below_min_notional
