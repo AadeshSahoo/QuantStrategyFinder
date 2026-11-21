@@ -7,7 +7,7 @@
 - Registered at: 2026-10-22T02:59:17.564177+00:00
 - Forward start: **2026-10-22** (after Phase 2 OOS consumption)
 - Candidates registered: **5**
-- Latest job: id=39 status=`completed` finished=2026-11-21T02:51:24.784605+00:00
+- Latest job: id=40 status=`completed` finished=2026-11-21T19:09:03.000231+00:00
 
 ## Integrity
 
