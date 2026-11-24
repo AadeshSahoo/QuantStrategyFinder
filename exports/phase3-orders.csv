@@ -119,3 +119,8 @@ id,candidate_id,order_key,signal_date,exec_date,side,target_weight,status,reason
 119,zscore_reversion_META,zscore_reversion_META|2026-11-20|rebalance,2026-11-19,2026-11-20,buy,1.0,filled,
 114,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-11-21|rebalance,2026-11-19,2026-11-21,none,0.0,skipped,below_min_notional
 120,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-11-22|rebalance,2026-11-21,2026-11-22,none,0.0,skipped,below_min_notional
+122,bollinger_reversion_AMZN,bollinger_reversion_AMZN|2026-11-23|rebalance,2026-11-20,2026-11-23,none,0.0,skipped,below_min_notional
+123,dual_sma_SHY,dual_sma_SHY|2026-11-23|rebalance,2026-11-20,2026-11-23,none,1.0,skipped,below_min_notional
+124,tsmom_NVDA,tsmom_NVDA|2026-11-23|rebalance,2026-11-20,2026-11-23,none,0.0,skipped,below_min_notional
+125,zscore_reversion_META,zscore_reversion_META|2026-11-23|rebalance,2026-11-20,2026-11-23,none,1.0,skipped,below_min_notional
+121,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-11-24|rebalance,2026-11-22,2026-11-24,none,0.0,skipped,below_min_notional
