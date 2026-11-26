@@ -5,47 +5,47 @@
     {
       "candidate_id": "atr_breakout_ETH-USD",
       "symbol": "ETH-USD",
-      "new_sessions_processed": 34,
+      "new_sessions_processed": 35,
       "fills": 0,
       "cost_notes": "crypto: commission_pct=0.001, spread_bps=5.0, slippage_bps=10.0, min_notional=5.0",
-      "data_end": "2026-11-25",
-      "data_hash": "681188eb0ee340f91cbf537cc6380543932198541e56fa3f36571dc07c46596f"
+      "data_end": "2026-11-26",
+      "data_hash": "35d6a8a6f3fd4d562ed11a680b4f5121c532849f528a9df696dbc08753bb29fa"
     },
     {
       "candidate_id": "bollinger_reversion_AMZN",
       "symbol": "AMZN",
-      "new_sessions_processed": 24,
+      "new_sessions_processed": 25,
       "fills": 0,
       "cost_notes": "equity_etf: commission_pct=0.0005, spread_bps=2.0, slippage_bps=5.0, min_notional=1.0",
-      "data_end": "2026-11-24",
-      "data_hash": "4bbf1aed89b15565acdf05d95194b3afefd1cfd45586954c3d76957cebdd7ba4"
+      "data_end": "2026-11-25",
+      "data_hash": "3b5fd10c462ac1c3ba94eaf0e7ab4b2454b97fe5eacf54783cda7bdfc2da1091"
     },
     {
       "candidate_id": "dual_sma_SHY",
       "symbol": "SHY",
-      "new_sessions_processed": 24,
+      "new_sessions_processed": 25,
       "fills": 0,
       "cost_notes": "equity_etf: commission_pct=0.0005, spread_bps=2.0, slippage_bps=5.0, min_notional=1.0",
-      "data_end": "2026-11-24",
-      "data_hash": "6d7a02723567f2d70e6c0320175ebe0abf11d0b753c8dec701e1b2d27099055c"
+      "data_end": "2026-11-25",
+      "data_hash": "754dd92bfb32a2d882b81963b98d0ec7a4f940f5a3ccf4b228a5a95be658d41a"
     },
     {
       "candidate_id": "tsmom_NVDA",
       "symbol": "NVDA",
-      "new_sessions_processed": 24,
+      "new_sessions_processed": 25,
       "fills": 0,
       "cost_notes": "equity_etf: commission_pct=0.0005, spread_bps=2.0, slippage_bps=5.0, min_notional=1.0",
-      "data_end": "2026-11-24",
-      "data_hash": "d90837d417e7ff86e7d584ea09b539bdcfd38e7e44b87e8e17282e652fc4ee77"
+      "data_end": "2026-11-25",
+      "data_hash": "9d5cb97d0c61df66ba8e893387404cc21486aa7308774108ffd7b53c1f787803"
     },
     {
       "candidate_id": "zscore_reversion_META",
       "symbol": "META",
-      "new_sessions_processed": 24,
+      "new_sessions_processed": 25,
       "fills": 0,
       "cost_notes": "equity_etf: commission_pct=0.0005, spread_bps=2.0, slippage_bps=5.0, min_notional=1.0",
-      "data_end": "2026-11-24",
-      "data_hash": "2ce823cee1962dcb7dbda73203a671001d1867771a253f34e7286e79b43bcac6"
+      "data_end": "2026-11-25",
+      "data_hash": "706268dc26ee2a7033ebb0c43f9f23b340c3d1da5f558b6c12b5b10b83410025"
     }
   ],
   "warnings": [],
@@ -58,7 +58,7 @@
     "forward_start_date": "2026-10-22",
     "message": "No candidate is labeled STATISTICALLY VALIDATED on this forward sample. "
   },
-  "job_id": 43,
+  "job_id": 44,
   "db_path": "data/phase3/paper_trading.sqlite",
   "scheduler_note": "Paper job completed. Durable ledger lives on git branch `phase3-ledger`. Official ACTIVE forward testing requires the CI schedule (.github/workflows/phase3-paper.yml or .depot/workflows/phase3-paper.yml) to run on a connected provider \u2014 see docs/phase3-scheduler.md and /cursor/stores/self/docs/phase3-activation.md."
 }
