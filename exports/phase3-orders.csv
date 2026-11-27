@@ -135,3 +135,4 @@ id,candidate_id,order_key,signal_date,exec_date,side,target_weight,status,reason
 135,tsmom_NVDA,tsmom_NVDA|2026-11-25|rebalance,2026-11-24,2026-11-25,none,0.0,skipped,below_min_notional
 136,zscore_reversion_META,zscore_reversion_META|2026-11-25|rebalance,2026-11-24,2026-11-25,none,1.0,skipped,below_min_notional
 132,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-11-26|rebalance,2026-11-24,2026-11-26,none,0.0,skipped,below_min_notional
+137,atr_breakout_ETH-USD,atr_breakout_ETH-USD|2026-11-27|rebalance,2026-11-25,2026-11-27,none,0.0,skipped,below_min_notional
